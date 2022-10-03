@@ -12,7 +12,7 @@ import Input from '../../components/Input';
 import { useAuth } from '../../contexts/AuthContext';
 
 const loginSchema = yup.object().shape({
-  email: yup.string().email('').required('Campo obrigatório'),
+  email: yup.string().email('Insira um email válido').required('Campo obrigatório'),
   password: yup.string().min(6, 'Min. 6 caracteres').required('Campo obrigatório'),
 });
 
@@ -39,9 +39,8 @@ const Home: React.FunctionComponent = () => {
 
     try {
       const response = await UsersService.login(email, password);
-      console.log(response);
       await Login(response).then(() => {
-        navigate('/funcionarios', { replace: true });
+        navigate('/home', { replace: true });
       });
 
       setLoader(false);
@@ -53,7 +52,7 @@ const Home: React.FunctionComponent = () => {
 
   useEffect(() => {
     if (user && logged) {
-      navigate('/funcionarios');
+      navigate('/home');
     }
   }, [logged, navigate, user]);
 

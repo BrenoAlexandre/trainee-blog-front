@@ -1,7 +1,7 @@
 {
-  "name": "quickstart-zero",
+  "name": "blog-front",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "dependencies": {
     "@babel/runtime": "7.12.13",
     "@brazilian-utils/brazilian-utils": "^1.0.0-rc.12",
@@ -11,6 +11,7 @@
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
     "@types/jest": "^26.0.15",
+    "@types/jsonwebtoken": "^8.5.9",
     "@types/node": "^12.0.0",
     "@types/react": "^17.0.44",
     "@types/react-dom": "^18.0.5",
@@ -24,6 +25,7 @@
     "date-fns-tz": "^1.2.2",
     "firebase": "^8.9.0",
     "formik": "^2.2.9",
+    "jsonwebtoken": "^8.5.1",
     "jwt-decode": "^3.1.2",
     "mixpanel-browser": "^2.42.0",
     "react": "^18.2.0",

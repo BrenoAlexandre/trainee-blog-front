@@ -2,10 +2,12 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { AxiosError, AxiosResponseHeaders } from 'axios';
 import { IUser } from '../../interfaces';
 import toastMsg, { ToastType } from '../../utils/toastMsg';
+import setTokenStorage from '../../utils/setTokenStorage';
 
 interface IContextUser {
   id: string;
   name: string;
+  email: string;
   role: string;
 }
 
@@ -17,7 +19,6 @@ interface IContextLogin {
 interface AuthContextData {
   logged: boolean;
   user: IContextUser;
-  token: string;
   Login({ data, headers }: IContextLogin): Promise<void>;
   Logout(): void;
 }
@@ -31,15 +32,13 @@ export function useAuth(): AuthContextData {
 }
 
 export const AuthProvider = ({ children }: { children: React.ReactElement }): React.ReactElement => {
-  const [user, setUser] = useState<IContextUser>({ id: '', name: '', role: '' });
-  const [token, setToken] = useState<string>('');
+  const [user, setUser] = useState<IContextUser>({ id: '', name: '', email: '', role: '' });
 
   useEffect(() => {
-    const localToken = localStorage.getItem('TOKEN_KEY');
+    const localToken = localStorage.getItem('authorization');
     const localUser = localStorage.getItem('USER');
 
     if (localToken && localUser) {
-      setToken(localToken);
       setUser(JSON.parse(localUser));
     }
   }, []);
@@ -47,11 +46,14 @@ export const AuthProvider = ({ children }: { children: React.ReactElement }): Re
   async function Login({ data, headers }: IContextLogin): Promise<void> {
     try {
       localStorage.clear();
-      setToken(headers.authorization);
-      setUser({ id: data.id, name: data.name, role: data.role });
+      setUser(data);
 
-      localStorage.setItem('TOKEN_KEY', `Bearer ${headers.authorization}`);
-      localStorage.setItem('USER', JSON.stringify({ id: data.id, name: data.name, role: data.role }));
+      setTokenStorage('authorization', headers.authorization);
+      localStorage.setItem(
+        'USER',
+        JSON.stringify({ id: data.id, name: data.name, email: data.email, role: data.role })
+      );
+      return;
     } catch (error) {
       toastMsg(ToastType.Error, (error as AxiosError).response?.data || 'Internal Server Error!');
     }
@@ -59,13 +61,10 @@ export const AuthProvider = ({ children }: { children: React.ReactElement }): Re
 
   function Logout(): void {
     localStorage.clear();
-    setToken('');
-    setUser({ id: '', name: '', role: '' });
+    setUser({ id: '', name: '', email: '', role: '' });
   }
 
-  return (
-    <AuthContext.Provider value={{ logged: !!token, user, token, Login, Logout }}>{children}</AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={{ logged: !!user, user, Login, Logout }}>{children}</AuthContext.Provider>;
 };
 
 export default AuthContext;
