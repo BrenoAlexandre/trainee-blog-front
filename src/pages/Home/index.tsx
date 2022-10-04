@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import toastMsg, { ToastType } from '../../utils/toastMsg';
 import Button from '../../components/Button';
 import PostTable from '../../components/PostTable';
 import Section from '../../components/Section';
@@ -11,7 +12,7 @@ import PostService from '../../services/posts.service';
 
 const Home: React.FunctionComponent = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logged, Logout } = useAuth();
   const [posts, setPosts] = useState<IPost[]>([]);
   const [myPosts, setMyPosts] = useState<IPost[]>([]);
 
@@ -27,10 +28,14 @@ const Home: React.FunctionComponent = () => {
     return dbPosts;
   }
 
+  function toast(msg: string): void {
+    toastMsg(ToastType.Warning, msg);
+  }
+
   useEffect(() => {
     fetchPosts();
-    fetchMyPosts();
-  }, []);
+    if (logged) fetchMyPosts();
+  }, [logged]);
 
   return (
     <Section className="home" title="Página inicial" description="Página inicial">
@@ -43,25 +48,56 @@ const Home: React.FunctionComponent = () => {
       </Row>
       <Row>
         <Col md={12} className="mt-3 mb-2" style={{ display: 'flex' }}>
-          <Button type="button" variant="primary" cy="test-create" onClick={() => navigate('')}>
+          <Button
+            type="button"
+            variant="primary"
+            cy="test-create"
+            onClick={() => {
+              if (!logged) {
+                toast('Faça login na plataforma para criar publicações.');
+              } else navigate('/post');
+            }}
+          >
             Nova publicação
           </Button>
           {user.role === 'admin' && (
             <div style={{ marginLeft: '5px' }}>
-              <Button type="button" variant="secondary" cy="test-create" onClick={() => navigate('')}>
+              <Button
+                type="button"
+                variant="secondary"
+                cy="test-create"
+                onClick={() => {
+                  if (user.role !== 'admin') {
+                    toast('Apenas admins podem criar novas categorias.');
+                  } else navigate('/category');
+                }}
+              >
                 Nova Categoria
+              </Button>
+            </div>
+          )}
+          {!logged ? (
+            <div style={{ marginLeft: '5px' }}>
+              <Button type="button" variant="secondary" cy="test-create" onClick={() => navigate('/')}>
+                Fazer login
+              </Button>
+            </div>
+          ) : (
+            <div style={{ marginLeft: '5px' }}>
+              <Button type="button" variant="dark" cy="test-create" onClick={() => Logout()}>
+                Encerrar sessão
               </Button>
             </div>
           )}
         </Col>
         <Col md={9}>
-          <PostTable posts={posts} />
+          <PostTable posts={posts} myPosts={false} />
         </Col>
         <Col md={3}>
           <Text as="h2" size="1.5rem" weight={500}>
             Minhas publicações
           </Text>
-          <PostTable posts={myPosts} /> {/* Fazer media query para tamanho de tela */}
+          <PostTable posts={myPosts} myPosts /> {/* TODO Fazer media query para tamanho de tela */}
         </Col>
       </Row>
     </Section>

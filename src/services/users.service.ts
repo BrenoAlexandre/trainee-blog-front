@@ -29,8 +29,6 @@ class UsersService {
     }
 
     const data = verify(headers.authorization, '1q2w3e4r' as Secret) as unknown as IAuthUser;
-
-    HttpClient.api.defaults.headers.common.Authorization = `Bearer ${headers.authorization}`;
     return { headers, data };
   }
 }

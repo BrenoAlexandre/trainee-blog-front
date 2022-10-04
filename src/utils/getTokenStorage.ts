@@ -5,7 +5,7 @@
  */
 
 const getTokenStorage = (): string => {
-  const token = localStorage.getItem('TOKEN_KEY');
+  const token = localStorage.getItem('authorization');
   return token || '';
 };
 

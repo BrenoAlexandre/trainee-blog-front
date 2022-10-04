@@ -3,6 +3,6 @@ export default interface IPost {
   title: string;
   description: string;
   likes: number;
-  category: { title: string };
+  category: { id: string; title: string };
   owner: { id: string; name: string };
 }

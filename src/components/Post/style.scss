@@ -1,0 +1,53 @@
+.card {
+  margin-top: 10px;
+  padding: 2px;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: baseline;
+  .title {
+    margin-right: 10px;
+    max-width: 700px;
+    a {
+      text-decoration: none;
+      color: #000000;
+    }
+    :hover {
+      text-decoration: underline;
+    }
+  }
+  .owner {
+    a {
+      text-decoration: none;
+      color: #000000;
+    }
+    :hover {
+      text-decoration: underline;
+    }
+  }
+
+  .category {
+    align-items: center;
+    padding: 2px;
+    margin-left: 10px;
+    border-radius: 15px;
+    border: 1px solid #000000;
+    background-color: #f5f5dc;
+    a {
+      text-decoration: none;
+      color: #000000;
+    }
+    :hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.description {
+  margin: 0px 50px;
+  max-width: 600px;
+  &__myPosts {
+    margin: 0px 0px;
+  }
+}

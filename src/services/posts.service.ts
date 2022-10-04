@@ -14,7 +14,6 @@ class PostService {
 
   static async getMyPosts(): Promise<IPost[]> {
     const { data } = await HttpClient.api.get(`/post/myPosts`);
-    console.log(data);
     return data;
   }
 

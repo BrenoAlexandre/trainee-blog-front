@@ -1,40 +1,31 @@
 import React from 'react';
-import { Card, ListGroup, Row } from 'react-bootstrap';
-// import { useNavigate } from 'react-router-dom';
+import { Card, Col, ListGroupItem, Row } from 'react-bootstrap';
 import IPost from '../../interfaces/IPost';
+import Post from '../Post';
 import Text from '../Text';
 import './style.scss';
 
-const PostTable = (props: { posts: IPost[] }): React.ReactElement => {
-  // const navigate = useNavigate();
-  const { posts } = props;
+const PostTable = (props: { posts: IPost[]; myPosts: boolean }): React.ReactElement => {
+  const { posts, myPosts } = props;
 
   return (
     <div>
       <Card>
-        {posts.map((post) => (
-          <ListGroup.Item key={post.id}>
-            <Row>
-              <div className="cardHeader">
-                <Text as="h2" size="1.5rem" weight={700} className="title">
-                  {post.title}
-                </Text>
-                <Text as="span" weight={500} className="owner">
-                  Publicado por:{' '}
-                  <a href="/">
-                    <strong>{post.owner.name}</strong>
-                  </a>
-                </Text>
-                <Text as="strong" weight={700} className="category">
-                  {post.category.title}
-                </Text>
-              </div>
-              <Text as="h2" size="1rem" weight={500} className="description">
-                {post.description}
+        {posts.length ? (
+          posts.map((post) => (
+            <ListGroupItem key={post.id}>
+              <Post post={post} myPosts={myPosts} />
+            </ListGroupItem>
+          ))
+        ) : (
+          <Row>
+            <Col style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Text as="span" size="0.9rem">
+                Acesse sua conta e veja suas publicações aqui!
               </Text>
-            </Row>
-          </ListGroup.Item>
-        ))}
+            </Col>
+          </Row>
+        )}
       </Card>
     </div>
   );

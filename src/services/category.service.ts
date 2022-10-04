@@ -1,9 +1,5 @@
 import HttpClient from './httpClient';
-
-interface ICategory {
-  title: string;
-  owner: any;
-}
+import { ICategory } from '../interfaces';
 
 class categoryService {
   static async getCategories(): Promise<ICategory[]> {

@@ -19,11 +19,15 @@ const PrivateRoute = (props: IProps): React.ReactElement => {
   const { logged, user } = useAuth();
 
   let redirectPage;
-  if ((mustBeAdmin && user.role !== 'admin') || (!isPublic && !logged)) {
-    redirectPage = redirectTo ? <Navigate to={redirectTo} /> : undefined;
+
+  if (!isPublic && !logged) {
+    redirectPage = redirectTo ? <Navigate to={redirectTo} /> : <Navigate to="/home" />;
+  }
+  if (mustBeAdmin && user.role !== 'admin') {
+    redirectPage = redirectTo ? <Navigate to={redirectTo} /> : <Navigate to="/home" />;
   }
 
-  return <div>{redirectPage || children}</div>;
+  return <div> {redirectPage || children} </div>;
 };
 
 const Routes: React.FunctionComponent = () => {

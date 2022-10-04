@@ -3,6 +3,7 @@ import { AxiosError, AxiosResponseHeaders } from 'axios';
 import toastMsg, { ToastType } from '../../utils/toastMsg';
 import setTokenStorage from '../../utils/setTokenStorage';
 import { IAuthUser } from '../../interfaces';
+import { setAxiosAuth } from '../../services/httpClient';
 
 interface IContextUser {
   id: string;
@@ -38,6 +39,8 @@ export const AuthProvider = ({ children }: { children: React.ReactElement }): Re
   useEffect(() => {
     const localToken = localStorage.getItem('authorization');
     const localUser = localStorage.getItem('USER');
+
+    setAxiosAuth();
 
     if (localToken && localUser) {
       const objUser: IContextUser = JSON.parse(localUser);
