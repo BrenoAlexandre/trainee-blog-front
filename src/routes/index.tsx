@@ -32,7 +32,7 @@ const Routes: React.FunctionComponent = () => {
       <Route
         key={route.path}
         element={
-          <PrivateRoute mustBeAdmin={route.adminOnly} isPublic={route.isPublic} redirectTo={route.redirectTo}>
+          <PrivateRoute mustBeAdmin={route.adminOnly} isPublic={route.public} redirectTo={route.redirectTo}>
             <route.component />
           </PrivateRoute>
         }

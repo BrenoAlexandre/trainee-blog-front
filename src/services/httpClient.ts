@@ -15,6 +15,10 @@ const axiosConfig = axios.create({
 
 axiosConfig.defaults.headers.common.authorization = getTokenStorage();
 
+export function setAxiosAuth(): void {
+  axiosConfig.defaults.headers.common.authorization = getTokenStorage();
+}
+
 class HttpClient {
   static api = axiosConfig;
 }

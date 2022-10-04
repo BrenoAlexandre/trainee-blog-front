@@ -1,32 +1,25 @@
+import IPost from '../interfaces/IPost';
 import HttpClient from './httpClient';
-
-interface IPost {
-  title: string;
-  description: string;
-  likes: number;
-  category: any;
-  owner: any;
-}
-// TODO Update na interface
 
 class PostService {
   static async getPost(id: string): Promise<IPost> {
-    const { data } = await HttpClient.api.get(`api/v1/post/${id}`);
+    const { data } = await HttpClient.api.get(`/post/${id}`);
     return data;
   }
 
   static async getPosts(): Promise<IPost[]> {
-    const { data } = await HttpClient.api.get(`api/v1/post`);
+    const { data } = await HttpClient.api.get(`/post`);
     return data;
   }
 
   static async getMyPosts(): Promise<IPost[]> {
-    const { data } = await HttpClient.api.get(`api/v1/post/myPosts`);
+    const { data } = await HttpClient.api.get(`/post/myPosts`);
+    console.log(data);
     return data;
   }
 
   static async publishPost(title: string, description: string, categoryId: string): Promise<IPost> {
-    const { data } = await HttpClient.api.post(`api/v1/post`, {
+    const { data } = await HttpClient.api.post(`/post`, {
       title,
       description,
       category: categoryId,
@@ -35,11 +28,11 @@ class PostService {
   }
 
   static async updatePost(id: string, title: string, description: string): Promise<void> {
-    await HttpClient.api.patch(`api/v1/post/${id}`, { title, description });
+    await HttpClient.api.patch(`/post/${id}`, { title, description });
   }
 
   static async deletePost(id: string): Promise<void> {
-    await HttpClient.api.delete(`api/v1/post/${id}`);
+    await HttpClient.api.delete(`/post/${id}`);
   }
 }
 

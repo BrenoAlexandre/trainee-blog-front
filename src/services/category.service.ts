@@ -7,26 +7,26 @@ interface ICategory {
 
 class categoryService {
   static async getCategories(): Promise<ICategory[]> {
-    const { data } = await HttpClient.api.get(`api/v1/category`);
+    const { data } = await HttpClient.api.get(`/category`);
     return data;
   }
 
   static async postCategory(title: string): Promise<ICategory> {
-    const { data } = await HttpClient.api.post(`api/v1/category`, { title });
+    const { data } = await HttpClient.api.post(`/category`, { title });
     return data;
   }
 
   static async getCategory(id: string): Promise<ICategory> {
-    const { data } = await HttpClient.api.get(`api/v1/category/${id}`);
+    const { data } = await HttpClient.api.get(`/category/${id}`);
     return data;
   }
 
   static async updateCategory(id: string, title: string): Promise<void> {
-    await HttpClient.api.put(`api/v1/category/${id}`, { title });
+    await HttpClient.api.put(`/category/${id}`, { title });
   }
 
   static async deleteCategory(id: string): Promise<void> {
-    await HttpClient.api.delete(`api/v1/category/${id}`);
+    await HttpClient.api.delete(`/category/${id}`);
   }
 }
 

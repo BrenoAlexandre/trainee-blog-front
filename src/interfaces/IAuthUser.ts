@@ -1,9 +1,10 @@
 import ERole from '../enums/ERole';
 
-export interface IUser {
+export interface IAuthUser {
   id: string;
   name: string;
   email: string;
   password?: string;
   role: ERole;
+  exp: string;
 }
