@@ -1,7 +1,7 @@
 import { Secret, verify } from 'jsonwebtoken';
 import { AxiosResponseHeaders } from 'axios';
 import HttpClient from './httpClient';
-import { IAuthUser } from '../interfaces';
+import { IAuthUser, IUser } from '../interfaces';
 import ERole from '../enums/ERole';
 
 class UsersService {
@@ -13,6 +13,11 @@ class UsersService {
     role: ERole | 'user';
   }): Promise<void> {
     const { data } = await HttpClient.api.post('/user', user);
+    return data;
+  }
+
+  static async findById(id: string): Promise<IUser> {
+    const { data } = await HttpClient.api.get(`/user/${id}`);
     return data;
   }
 

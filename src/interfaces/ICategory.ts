@@ -1,5 +1,5 @@
 export interface ICategory {
   id: string;
   title: string;
-  owner: string;
+  owner: { id: string; name: string };
 }

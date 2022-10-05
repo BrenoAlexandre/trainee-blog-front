@@ -11,6 +11,7 @@ import PostService from '../../../services/posts.service';
 import toastMsg, { ToastType } from '../../../utils/toastMsg';
 import { ICategory } from '../../../interfaces';
 import categoryService from '../../../services/category.service';
+import { useAuth } from '../../../contexts/AuthContext';
 
 const createSchema = yup.object().shape({
   title: yup.string().defined('O título é obrigatório').max(100, 'O título deve ter menos de 100 caracteres'),
@@ -28,16 +29,19 @@ interface ICreate {
   title: string;
   description: string;
   category: string;
+  owner: string;
 }
 
 const defaultValue = {
   title: '',
   description: '',
   category: '',
+  owner: '',
 } as ICreate;
 
 const Post: React.FunctionComponent = () => {
   const { id } = useParams();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [loader, setLoader] = useState<boolean>(false);
   const [initialValues, setInitialValues] = useState(defaultValue as ICreate);
@@ -49,11 +53,11 @@ const Post: React.FunctionComponent = () => {
       setLoader(true);
 
       if (id) {
-        await PostService.updatePost(id, title, description);
+        PostService.updatePost(id, title, description, category);
         toastMsg(ToastType.Success, 'Atualização realizada com sucesso!');
       } else {
         await PostService.publishPost(title, description, category);
-        toastMsg(ToastType.Success, 'Cadastro realizado com sucesso!');
+        toastMsg(ToastType.Success, 'Publicação realizada com sucesso!');
       }
 
       setLoader(false);
@@ -62,6 +66,14 @@ const Post: React.FunctionComponent = () => {
       setLoader(false);
       toastMsg(ToastType.Error, (error as Error).message);
     }
+  }
+
+  async function deleteHandler(): Promise<void> {
+    if (id) {
+      PostService.deletePost(id);
+    }
+
+    navigate('/home');
   }
 
   useEffect(() => {
@@ -74,6 +86,7 @@ const Post: React.FunctionComponent = () => {
                 title: res.title,
                 description: res.description,
                 category: res.category.id,
+                owner: res.owner.id,
               } as ICreate;
               setInitialValues(obj);
             }
@@ -117,7 +130,7 @@ const Post: React.FunctionComponent = () => {
         enableReinitialize
         onSubmit={(values) => submitHandler(values)}
       >
-        {({ errors, touched }) => (
+        {({ values, errors, touched }) => (
           <Form>
             <Row>
               <Col md={8}>
@@ -132,31 +145,33 @@ const Post: React.FunctionComponent = () => {
                       name="title"
                       as="input"
                       placeholder="Título da publicação"
-                      disabled={!!id}
+                      disabled={!!loader}
                     />
                   </Col>
 
-                  {!id && (
-                    <Col md={4} className="mb-3">
-                      <Input
-                        cy="test-inputCategory"
-                        id="category"
-                        name="category"
-                        label="Categoria da publicação"
-                        as="select"
-                        isInvalid={(errors.category && touched.category) || false}
-                        msg={errors.category}
-                        placeholder="-- Selecione --"
-                      >
-                        <>
-                          <option>-- Selecione --</option>
-                          {categories.map((category) => (
-                            <option value={category.id}>{category.title}</option>
-                          ))}
-                        </>
-                      </Input>
-                    </Col>
-                  )}
+                  {/* {!id && ( */}
+                  <Col md={4} className="mb-3">
+                    <Input
+                      cy="test-inputCategory"
+                      id="category"
+                      name="category"
+                      label="Categoria da publicação"
+                      as="select"
+                      isInvalid={(errors.category && touched.category) || false}
+                      msg={errors.category}
+                      placeholder="-- Selecione --"
+                      disabled={!!loader}
+                    >
+                      <>
+                        <option>-- Selecione --</option>
+                        {categories.map((category) => (
+                          <option key={category.id} value={category.id}>
+                            {category.title}
+                          </option>
+                        ))}
+                      </>
+                    </Input>
+                  </Col>
 
                   <Col md={12} className="mb-3">
                     <Input
@@ -168,13 +183,25 @@ const Post: React.FunctionComponent = () => {
                       as="input"
                       label="Descrição:"
                       component="textarea"
+                      disabled={!!loader}
                     />
                   </Col>
 
-                  <Col md={12} className="mb-3">
-                    <Button type="submit" cy="test-login" variant="primary" disabled={!!loader}>
+                  <Col md={12} className="mb-3" style={{ display: 'flex', alignItems: 'center' }}>
+                    <Button type="submit" cy="test-createPost" variant="primary" disabled={!!loader}>
                       {id ? 'Editar' : 'Criar'} publicação
                     </Button>
+                    {id && values.owner === user.id && (
+                      <Button
+                        cy="test-deletePost"
+                        variant="danger"
+                        disabled={!!loader}
+                        style={{ marginLeft: '5px' }}
+                        onClick={() => deleteHandler()}
+                      >
+                        Deletar publicação
+                      </Button>
+                    )}
                   </Col>
                 </Row>
               </Col>

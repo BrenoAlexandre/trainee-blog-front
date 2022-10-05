@@ -55,7 +55,7 @@ const Home: React.FunctionComponent = () => {
             onClick={() => {
               if (!logged) {
                 toast('Faça login na plataforma para criar publicações.');
-              } else navigate('/post');
+              } else navigate('/actions/post');
             }}
           >
             Nova publicação
@@ -69,7 +69,7 @@ const Home: React.FunctionComponent = () => {
                 onClick={() => {
                   if (user.role !== 'admin') {
                     toast('Apenas admins podem criar novas categorias.');
-                  } else navigate('/category');
+                  } else navigate('/actions/category');
                 }}
               >
                 Nova Categoria
@@ -97,7 +97,7 @@ const Home: React.FunctionComponent = () => {
           <Text as="h2" size="1.5rem" weight={500}>
             Minhas publicações
           </Text>
-          <PostTable posts={myPosts} myPosts /> {/* TODO Fazer media query para tamanho de tela */}
+          <PostTable posts={myPosts} myPosts />
         </Col>
       </Row>
     </Section>

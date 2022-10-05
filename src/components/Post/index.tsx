@@ -1,6 +1,7 @@
 import React from 'react';
 import { Row } from 'react-bootstrap';
 import IPost from '../../interfaces/IPost';
+import formatDate from '../../utils/formatDate';
 import Text from '../Text';
 import './style.scss';
 
@@ -13,7 +14,7 @@ const Post = (props: { post: IPost; myPosts: boolean }): React.ReactElement => {
         <Row>
           <div className="cardHeader">
             <Text as="h2" size="1rem" weight={700} className="title">
-              <a href={`/post/${post.id}`}>{post.title.substring(0, 50)}</a>
+              <a href={`/actions/post/${post.id}`}>{post.title.substring(0, 50)}</a>
             </Text>
             <Text as="strong" weight={700} size="0.75rem" className="category">
               <a href={`/category/${post.category.id}`}>{post.category.title}</a>
@@ -21,6 +22,9 @@ const Post = (props: { post: IPost; myPosts: boolean }): React.ReactElement => {
           </div>
           <Text as="h2" size="1rem" weight={500} className="description__myPosts">
             {post.description}
+          </Text>
+          <Text as="h6" size="0.9rem" weight={500} className="publish_date">
+            Publicado em: {formatDate(post.created_at.toString())}
           </Text>
         </Row>
       ) : (
@@ -36,11 +40,14 @@ const Post = (props: { post: IPost; myPosts: boolean }): React.ReactElement => {
               </a>
             </Text>
             <Text as="strong" weight={700} className="category">
-              {post.category.title}
+              <a href={`/category/${post.category.id}`}>{post.category.title}</a>
             </Text>
           </div>
           <Text as="h2" size="1rem" weight={500} className="description">
             {post.description}
+          </Text>
+          <Text as="h6" size="0.9rem" weight={500} className="publish_date">
+            Publicado em: {formatDate(post.created_at.toString())}
           </Text>
         </Row>
       )}
