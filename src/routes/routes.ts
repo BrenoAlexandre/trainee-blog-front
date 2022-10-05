@@ -2,6 +2,7 @@ import { lazy } from 'react';
 import { IRoute } from './types';
 
 const Login = lazy(() => import('../pages/Login'));
+const Registration = lazy(() => import('../pages/Registration'));
 const Home = lazy(() => import('../pages/Home'));
 const Post = lazy(() => import('../pages/Post'));
 const PostAction = lazy(() => import('../pages/Post/Actions'));
@@ -19,13 +20,19 @@ export const routes: IRoute[] = [
     redirectTo: '/home',
   },
   {
+    path: '/register',
+    component: Registration,
+    public: true,
+    adminOnly: false,
+    redirectTo: '/home',
+  },
+  {
     path: '/home',
     component: Home,
     public: true,
     adminOnly: false,
     redirectTo: '/home',
   },
-
   {
     path: '/post/:id',
     component: Post,
@@ -50,7 +57,7 @@ export const routes: IRoute[] = [
   {
     path: '/category/:id',
     component: Category,
-    public: true,
+    public: false,
     adminOnly: false,
     redirectTo: '/home',
   },

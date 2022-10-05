@@ -9,10 +9,10 @@ class UsersService {
     name: string;
     email: string;
     password: string;
-    confirmPassword: string;
-    role: ERole | 'user';
+    passwordConfirmation: string;
+    role?: ERole;
   }): Promise<void> {
-    const { data } = await HttpClient.api.post('/user', user);
+    const { data } = await HttpClient.api.post('/user', { ...user, role: user.role ?? 'user' });
     return data;
   }
 

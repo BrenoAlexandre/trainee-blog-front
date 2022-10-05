@@ -8,22 +8,22 @@ import Loader from '../components/Loader';
 
 interface IPrivateProps {
   children?: React.ReactNode;
-  mustBeAdmin: boolean;
+  adminOnly: boolean;
   redirectTo: string;
 }
 
 const PrivateRoute = (props: IPrivateProps): React.ReactElement => {
-  const { children, mustBeAdmin, redirectTo } = props;
+  const { children, adminOnly, redirectTo } = props;
   const { logged, user } = useAuth();
 
-  if (mustBeAdmin && user.role !== 'admin') {
-    return <Navigate to={redirectTo} />;
-  }
   if (!logged) {
     return <Navigate to={redirectTo} />;
   }
+  if (adminOnly && user.role !== 'admin') {
+    return <Navigate to={redirectTo} />;
+  }
 
-  return <div> {children} </div>;
+  return <>{children}</>;
 };
 
 const Routes: React.FunctionComponent = () => {
@@ -33,7 +33,7 @@ const Routes: React.FunctionComponent = () => {
         key={route.path}
         element={
           !route.public ? (
-            <PrivateRoute mustBeAdmin={route.adminOnly} redirectTo={route.redirectTo}>
+            <PrivateRoute adminOnly={route.adminOnly} redirectTo={route.redirectTo}>
               <route.component />
             </PrivateRoute>
           ) : (

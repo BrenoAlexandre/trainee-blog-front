@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { Form, Formik } from 'formik';
@@ -9,76 +9,85 @@ import Button from '../../components/Button';
 import UsersService from '../../services/users.service';
 import toastMsg, { ToastType } from '../../utils/toastMsg';
 import Input from '../../components/Input';
-import { useAuth } from '../../contexts/AuthContext';
 
-const loginSchema = yup.object().shape({
+const registrationSchema = yup.object().shape({
+  name: yup.string().required('Campo obrigatório'),
   email: yup.string().email('Insira um email válido').required('Campo obrigatório'),
-  password: yup.string().min(6, 'Min. 6 caracteres').required('Campo obrigatório'),
+  password: yup.string().required('Campo obrigatório'),
+  passwordConfirmation: yup
+    .string()
+    .required('Campo obrigatório')
+    .oneOf([yup.ref('password'), null], 'As senhas devem ser iguais'),
 });
 
-interface ILogin {
+interface ICreateUser {
+  name: string;
   email: string;
   password: string;
+  passwordConfirmation: string;
 }
 
 const defaultValue = {
+  name: '',
   email: '',
   password: '',
-} as ILogin;
+  passwordConfirmation: '',
+} as ICreateUser;
 
-const LoginPage: React.FunctionComponent = () => {
+const Registration: React.FunctionComponent = () => {
   const [loader, setLoader] = useState<boolean>(false);
-  const [initialValues] = useState(defaultValue as ILogin);
+  const [initialValues] = useState(defaultValue as ICreateUser);
 
   const navigate = useNavigate();
-  const { user, logged, Login } = useAuth();
 
-  async function loginHandler(values: ILogin): Promise<void> {
+  async function registrationHandler(values: ICreateUser): Promise<void> {
     setLoader(true);
-    const { email, password } = values;
+    const { name, email, password, passwordConfirmation } = values;
 
     try {
-      const response = await UsersService.login(email, password);
-      await Login(response).then(() => {
-        navigate('/home', { replace: true });
+      await UsersService.create({ name, email, password, passwordConfirmation }).then(() => {
+        navigate('/', { replace: true });
       });
 
+      toastMsg(ToastType.Success, 'Cadastrado com sucesso!');
       setLoader(false);
     } catch (error) {
-      toastMsg(ToastType.Error, 'Usuário incorreto, verifique seus dados.');
+      toastMsg(ToastType.Error, 'Dados inválidos, revise seu cadastro.');
       setLoader(false);
     }
   }
-
-  useEffect(() => {
-    if (user && logged) {
-      navigate('/home');
-    }
-  }, [logged, navigate, user]);
-
   return (
     <Section className="home" title="Página inicial" description="Página inicial">
       <Row>
         <Col md={8}>
           <Text as="h1" size="2rem" weight={700}>
-            Login
+            Cadastro
           </Text>
-
-          <Text as="small" size="1rem" weight={400}>
-            Acesse o blog e tenha acesso as publicações!
-          </Text>
-
           <Formik
             initialValues={initialValues}
-            validationSchema={loginSchema}
+            validationSchema={registrationSchema}
             enableReinitialize
             onSubmit={async (values) => {
-              await loginHandler(values);
+              await registrationHandler(values);
             }}
           >
             {({ errors, touched }) => (
               <Form>
-                <Col md={6} className="mb-3 ">
+                <Col md={6} className="mb-3">
+                  <Input
+                    cy="test-inputName"
+                    id="name"
+                    name="name"
+                    as="input"
+                    type="string"
+                    label="Nome"
+                    isInvalid={(errors.name && touched.name) || false}
+                    msg={errors.name}
+                    placeholder="Nome"
+                  />
+                </Col>
+
+                <Col md={6} className="mb-3">
                   <Input
                     cy="test-inputEmail"
                     id="email"
@@ -106,30 +115,32 @@ const LoginPage: React.FunctionComponent = () => {
                   />
                 </Col>
 
+                <Col md={6} className="mb-3">
+                  <Input
+                    cy="test-inputPasswordConfirmation"
+                    id="passwordConfirmation"
+                    name="passwordConfirmation"
+                    as="input"
+                    type="password"
+                    label="Confirmar senha"
+                    isInvalid={(errors.passwordConfirmation && touched.passwordConfirmation) || false}
+                    msg={errors.passwordConfirmation}
+                    placeholder="Senha"
+                  />
+                </Col>
+
                 <Col md={12} className="mb-3">
-                  <Button type="submit" variant="primary" disabled={loader} cy="test-buttonLogin">
-                    Login
+                  <Button type="submit" variant="primary" disabled={loader} cy="test-buttonRegistration">
+                    Cadastrar-se
                   </Button>
                 </Col>
               </Form>
             )}
           </Formik>
-          <Text as="span">Ainda não possui uma conta?</Text>
-          <Col md={12} className="mb-3">
-            <Button
-              variant="primary"
-              cy="test-buttonRegistration"
-              onClick={() => {
-                navigate('/register', {});
-              }}
-            >
-              Cadastre-se
-            </Button>
-          </Col>
         </Col>
       </Row>
     </Section>
   );
 };
 
-export default LoginPage;
+export default Registration;

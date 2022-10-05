@@ -77,9 +77,7 @@ export const AuthProvider = ({ children }: { children: React.ReactElement }): Re
     setUser({ id: '', name: '', email: '', role: '', exp: '' });
   }
 
-  return (
-    <AuthContext.Provider value={{ logged: !!user.name.length, user, Login, Logout }}>{children}</AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={{ logged: !!user.name, user, Login, Logout }}>{children}</AuthContext.Provider>;
 };
 
 export default AuthContext;

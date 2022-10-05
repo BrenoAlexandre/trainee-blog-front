@@ -28,14 +28,22 @@ const Home: React.FunctionComponent = () => {
     return dbPosts;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function logoutHandler(): any {
+    setMyPosts([]);
+    Logout();
+  }
+
   function toast(msg: string): void {
     toastMsg(ToastType.Warning, msg);
   }
 
   useEffect(() => {
     fetchPosts();
-    if (logged) fetchMyPosts();
-  }, [logged]);
+    if (user && logged) {
+      fetchMyPosts();
+    }
+  }, [user, logged]);
 
   return (
     <Section className="home" title="Página inicial" description="Página inicial">
@@ -84,7 +92,7 @@ const Home: React.FunctionComponent = () => {
             </div>
           ) : (
             <div style={{ marginLeft: '5px' }}>
-              <Button type="button" variant="dark" cy="test-create" onClick={() => Logout()}>
+              <Button type="button" variant="dark" cy="test-create" onClick={() => logoutHandler()}>
                 Encerrar sessão
               </Button>
             </div>

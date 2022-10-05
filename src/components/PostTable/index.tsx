@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, Col, ListGroupItem, Row } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import IPost from '../../interfaces/IPost';
 import Post from '../Post';
@@ -15,7 +16,7 @@ const PostTable = (props: { posts: IPost[]; myPosts: boolean }): React.ReactElem
   return (
     <div>
       <Card>
-        {userPosts.length ? (
+        {userPosts.length > 0 ? (
           <>
             {userPosts.map((post) => (
               <ListGroupItem key={post.id}>
@@ -25,7 +26,7 @@ const PostTable = (props: { posts: IPost[]; myPosts: boolean }): React.ReactElem
             <Row>
               <Col style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Text as="span" size="0.9rem">
-                  {myPosts && posts.length > 5 && <a href={`/user/${user.id}`}> Ver mais </a>}
+                  {myPosts && posts.length > 5 && <Link to={`/user/${user.id}`}> Ver mais </Link>}
                 </Text>
               </Col>
             </Row>
@@ -35,9 +36,9 @@ const PostTable = (props: { posts: IPost[]; myPosts: boolean }): React.ReactElem
             <Col style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Text as="span" size="0.9rem">
                 {logged ? (
-                  <a href="/actions/post" style={{ color: '#000000', textDecoration: 'none' }}>
+                  <Link to="/actions/post" style={{ color: '#000000', textDecoration: 'none' }}>
                     Comece a publicar!
-                  </a>
+                  </Link>
                 ) : (
                   'Acesse sua conta e veja suas publicações aqui!'
                 )}
