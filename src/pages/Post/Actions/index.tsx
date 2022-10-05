@@ -26,6 +26,7 @@ const updateSchema = yup.object().shape({
 });
 
 interface ICreate {
+  ownerId: string;
   title: string;
   description: string;
   category: string;
@@ -33,6 +34,7 @@ interface ICreate {
 }
 
 const defaultValue = {
+  ownerId: '',
   title: '',
   description: '',
   category: '',
@@ -65,7 +67,7 @@ const Post: React.FunctionComponent = () => {
       }
 
       setLoader(false);
-      navigate('/home');
+      navigate(-1);
     } catch (error) {
       setLoader(false);
       toastMsg(ToastType.Error, (error as Error).message);
@@ -77,7 +79,7 @@ const Post: React.FunctionComponent = () => {
       PostService.deletePost(id);
     }
 
-    navigate('/home');
+    navigate(-1);
   }
 
   useEffect(() => {
@@ -87,6 +89,7 @@ const Post: React.FunctionComponent = () => {
           .then((res) => {
             if (res) {
               const obj = {
+                ownerId: res.owner.id,
                 title: res.title,
                 description: res.description,
                 category: res.category.id,
@@ -192,7 +195,7 @@ const Post: React.FunctionComponent = () => {
                     <Button type="submit" cy="test-createPost" variant="primary" disabled={!!loader}>
                       {id ? 'Editar' : 'Criar'} publicação
                     </Button>
-                    {id && values.owner === user.id && (
+                    {id && values.ownerId === user.id && (
                       <>
                         <Button
                           cy="test-deletePost"

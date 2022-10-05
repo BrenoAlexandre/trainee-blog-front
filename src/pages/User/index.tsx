@@ -54,7 +54,7 @@ const User: React.FunctionComponent = () => {
       </Row>
       <Row>
         <Col md={9}>
-          <PostTable posts={posts} myPosts={false} />
+          <PostTable posts={posts} myPosts={false} profileId={id} />
         </Col>
         <Col md={3}>
           {user.id === id && user.role === 'admin' && (

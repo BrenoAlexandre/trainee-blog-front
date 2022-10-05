@@ -37,7 +37,7 @@ const Category: React.FunctionComponent = () => {
       toastMsg(ToastType.Success, 'Categoria criada com sucesso!');
 
       setLoader(false);
-      navigate('/home');
+      navigate(-1);
     } catch (error) {
       setLoader(false);
       toastMsg(ToastType.Error, (error as Error).message);

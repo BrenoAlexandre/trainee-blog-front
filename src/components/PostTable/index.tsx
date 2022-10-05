@@ -1,15 +1,17 @@
 import React from 'react';
 import { Card, Col, ListGroupItem, Row } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { HiPencil } from 'react-icons/hi';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import IPost from '../../interfaces/IPost';
 import Post from '../Post';
 import Text from '../Text';
 import './style.scss';
 
-const PostTable = (props: { posts: IPost[]; myPosts: boolean }): React.ReactElement => {
-  const { posts, myPosts } = props;
+const PostTable = (props: { posts: IPost[]; myPosts: boolean; profileId?: string }): React.ReactElement => {
+  const { posts, myPosts, profileId } = props;
   const { logged, user } = useAuth();
+  const navigate = useNavigate();
 
   const userPosts = myPosts ? posts.slice(0, 5) : posts;
 
@@ -19,8 +21,18 @@ const PostTable = (props: { posts: IPost[]; myPosts: boolean }): React.ReactElem
         {userPosts.length > 0 ? (
           <>
             {userPosts.map((post) => (
-              <ListGroupItem key={post.id}>
+              <ListGroupItem
+                key={post.id}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+              >
                 <Post post={post} myPosts={myPosts} />
+                {profileId === user.id && (
+                  <HiPencil
+                    size={30}
+                    className="table__icon-update table__icon-svg"
+                    onClick={() => navigate(`/actions/post/${post.id}`)}
+                  />
+                )}
               </ListGroupItem>
             ))}
             <Row>
