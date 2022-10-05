@@ -3,5 +3,5 @@ export interface IRoute {
   component: React.FunctionComponent;
   public: boolean;
   adminOnly: boolean;
-  redirectTo?: string;
+  redirectTo: string;
 }

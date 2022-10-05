@@ -148,8 +148,6 @@ const Post: React.FunctionComponent = () => {
                       disabled={!!loader}
                     />
                   </Col>
-
-                  {/* {!id && ( */}
                   <Col md={4} className="mb-3">
                     <Input
                       cy="test-inputCategory"
@@ -172,7 +170,6 @@ const Post: React.FunctionComponent = () => {
                       </>
                     </Input>
                   </Col>
-
                   <Col md={12} className="mb-3">
                     <Input
                       cy="test-inputDescription"

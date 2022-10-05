@@ -1,33 +1,29 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Routes as Switch, Route, Navigate } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 import { routes } from './routes';
 import { useAuth } from '../contexts/AuthContext';
 
-// components;
 import Loader from '../components/Loader';
 
-interface IProps {
+interface IPrivateProps {
   children?: React.ReactNode;
   mustBeAdmin: boolean;
-  isPublic: boolean;
-  redirectTo?: string;
+  redirectTo: string;
 }
 
-const PrivateRoute = (props: IProps): React.ReactElement => {
-  const { children, mustBeAdmin, isPublic, redirectTo } = props;
+const PrivateRoute = (props: IPrivateProps): React.ReactElement => {
+  const { children, mustBeAdmin, redirectTo } = props;
   const { logged, user } = useAuth();
-  let redirectPage;
-  useEffect(() => {
-    if (!isPublic && !logged) {
-      redirectPage = redirectTo ? <Navigate to={redirectTo} /> : <Navigate to="/home" />;
-    }
-    if (mustBeAdmin && user.role !== 'admin') {
-      redirectPage = redirectTo ? <Navigate to={redirectTo} /> : <Navigate to="/home" />;
-    }
-  }, [logged]);
 
-  return <div> {redirectPage || children} </div>;
+  if (mustBeAdmin && user.role !== 'admin') {
+    return <Navigate to={redirectTo} />;
+  }
+  if (!logged) {
+    return <Navigate to={redirectTo} />;
+  }
+
+  return <div> {children} </div>;
 };
 
 const Routes: React.FunctionComponent = () => {
@@ -36,9 +32,13 @@ const Routes: React.FunctionComponent = () => {
       <Route
         key={route.path}
         element={
-          <PrivateRoute mustBeAdmin={route.adminOnly} isPublic={route.public} redirectTo={route.redirectTo}>
+          !route.public ? (
+            <PrivateRoute mustBeAdmin={route.adminOnly} redirectTo={route.redirectTo}>
+              <route.component />
+            </PrivateRoute>
+          ) : (
             <route.component />
-          </PrivateRoute>
+          )
         }
         {...route}
       />

@@ -16,17 +16,20 @@ export const routes: IRoute[] = [
     component: Login,
     public: true,
     adminOnly: false,
+    redirectTo: '/home',
   },
   {
     path: '/home',
     component: Home,
     public: true,
     adminOnly: false,
+    redirectTo: '/home',
   },
+
   {
     path: '/post/:id',
     component: Post,
-    public: false,
+    public: true,
     adminOnly: false,
     redirectTo: '/home',
   },
@@ -62,7 +65,7 @@ export const routes: IRoute[] = [
     path: '/user/:id',
     component: User,
     public: false,
-    adminOnly: true,
+    adminOnly: false,
     redirectTo: '/home',
   },
   {
@@ -70,5 +73,6 @@ export const routes: IRoute[] = [
     component: Error,
     public: true,
     adminOnly: false,
+    redirectTo: '/home',
   },
 ];
