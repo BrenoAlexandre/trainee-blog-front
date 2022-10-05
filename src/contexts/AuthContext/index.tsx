@@ -10,7 +10,7 @@ interface IContextUser {
   name: string;
   email: string;
   role: string;
-  exp: string;
+  exp: number;
 }
 
 interface IContextLogin {
@@ -23,6 +23,7 @@ interface AuthContextData {
   user: IContextUser;
   Login({ data, headers }: IContextLogin): Promise<void>;
   Logout(): void;
+  checkToken(): boolean;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -34,7 +35,7 @@ export function useAuth(): AuthContextData {
 }
 
 export const AuthProvider = ({ children }: { children: React.ReactElement }): React.ReactElement => {
-  const [user, setUser] = useState<IContextUser>({ id: '', name: '', email: '', role: '', exp: '' });
+  const [user, setUser] = useState<IContextUser>({ id: '', name: '', email: '', role: '', exp: 0 });
 
   useEffect(() => {
     const localToken = localStorage.getItem('authorization');
@@ -45,7 +46,7 @@ export const AuthProvider = ({ children }: { children: React.ReactElement }): Re
     if (localToken && localUser) {
       const objUser: IContextUser = JSON.parse(localUser);
       // eslint-disable-next-line radix
-      const expDate = new Date(parseInt(objUser.exp) * 1000);
+      const expDate = new Date(objUser.exp * 1000);
 
       if (expDate < new Date()) {
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
@@ -74,10 +75,24 @@ export const AuthProvider = ({ children }: { children: React.ReactElement }): Re
 
   function Logout(): void {
     localStorage.clear();
-    setUser({ id: '', name: '', email: '', role: '', exp: '' });
+    setUser({ id: '', name: '', email: '', role: '', exp: 0 });
   }
 
-  return <AuthContext.Provider value={{ logged: !!user.name, user, Login, Logout }}>{children}</AuthContext.Provider>;
+  function checkToken(): boolean {
+    if (new Date(user.exp * 1000) < new Date()) {
+      Logout();
+      toastMsg(ToastType.Warning, 'Sua sessão expirou.');
+      return false;
+    }
+
+    return true;
+  }
+
+  return (
+    <AuthContext.Provider value={{ logged: !!user.name, user, Login, Logout, checkToken }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export default AuthContext;

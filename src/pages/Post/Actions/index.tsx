@@ -43,7 +43,7 @@ const defaultValue = {
 
 const Post: React.FunctionComponent = () => {
   const { id } = useParams();
-  const { user } = useAuth();
+  const { user, checkToken } = useAuth();
   const navigate = useNavigate();
   const [loader, setLoader] = useState<boolean>(false);
   const [initialValues, setInitialValues] = useState(defaultValue as ICreate);
@@ -83,6 +83,9 @@ const Post: React.FunctionComponent = () => {
   }
 
   useEffect(() => {
+    const isValid = checkToken();
+    if (!isValid) navigate(-1);
+
     async function getPostById(): Promise<void> {
       if (id) {
         await PostService.getPost(id)
@@ -116,7 +119,7 @@ const Post: React.FunctionComponent = () => {
 
     getPostById();
     getCategories();
-  }, [id]);
+  }, [checkToken, id, navigate]);
 
   return (
     <Section

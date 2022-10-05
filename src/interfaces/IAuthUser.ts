@@ -6,5 +6,5 @@ export interface IAuthUser {
   email: string;
   password?: string;
   role: ERole;
-  exp: string;
+  exp: number;
 }

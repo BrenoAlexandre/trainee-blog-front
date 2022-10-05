@@ -10,6 +10,7 @@ import UsersService from '../../services/users.service';
 import toastMsg, { ToastType } from '../../utils/toastMsg';
 import Input from '../../components/Input';
 import { useAuth } from '../../contexts/AuthContext';
+import { setAxiosAuth } from '../../services/httpClient';
 
 const loginSchema = yup.object().shape({
   email: yup.string().email('Insira um email válido').required('Campo obrigatório'),
@@ -42,6 +43,8 @@ const LoginPage: React.FunctionComponent = () => {
       await Login(response).then(() => {
         navigate('/home', { replace: true });
       });
+
+      setAxiosAuth();
 
       setLoader(false);
     } catch (error) {

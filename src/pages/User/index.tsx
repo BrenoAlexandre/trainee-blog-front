@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Col, Row } from 'react-bootstrap';
-import { useParams } from 'react-router-dom';
+import { Button as BootButton, Col, Modal, Row } from 'react-bootstrap';
+import { HiPencil } from 'react-icons/hi';
+import { useNavigate, useParams } from 'react-router-dom';
 import CategoryTable from '../../components/CategoryTable';
 import PostTable from '../../components/PostTable';
 import Section from '../../components/Section';
@@ -10,14 +11,40 @@ import { IUser } from '../../interfaces';
 import IPost from '../../interfaces/IPost';
 import PostService from '../../services/posts.service';
 import UsersService from '../../services/users.service';
+import toastMsg, { ToastType } from '../../utils/toastMsg';
 
 const User: React.FunctionComponent = () => {
   const { id } = useParams();
-  const { user } = useAuth();
+  const { user, checkToken } = useAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<IUser>({ id: '', name: '', email: '', role: '' });
   const [posts, setPosts] = useState<IPost[]>([]);
+  const [newName, setNewName] = useState<string>('');
+  const [open, setOpen] = useState<boolean>(false);
+
+  const handleClose = (): void => setOpen(false);
+  const handleOpen = (): void => {
+    setNewName(profile.name);
+    setOpen(true);
+  };
+
+  async function editName(): Promise<void> {
+    try {
+      await UsersService.update(newName).then(() => {
+        setProfile({ ...profile, name: newName });
+        setNewName('');
+        handleClose();
+        toastMsg(ToastType.Success, 'Usuário alterado com sucesso!');
+      });
+    } catch (error) {
+      toastMsg(ToastType.Error, (error as Error).message);
+    }
+  }
 
   useEffect(() => {
+    const isValid = checkToken();
+    if (!isValid) navigate(-1);
+
     async function getUser(): Promise<void> {
       if (id) {
         const dbUser = await UsersService.findById(id);
@@ -33,7 +60,7 @@ const User: React.FunctionComponent = () => {
 
     getUser();
     getUserPosts();
-  }, [id]);
+  }, [checkToken, id, navigate]);
   return (
     <Section className="home" title="Página inicial" description="Página inicial">
       {user.id === id && (
@@ -49,6 +76,35 @@ const User: React.FunctionComponent = () => {
         <Col md={8}>
           <Text as="h1" size="1.8rem" weight={700}>
             {profile?.name || ''}
+            <HiPencil size={22} className="table__icon-update table__icon-svg" onClick={() => handleOpen()} />
+            <Modal show={open} onHide={handleClose}>
+              <Modal.Header closeButton>
+                <Modal.Title>Editar usuário</Modal.Title>
+              </Modal.Header>
+
+              <Modal.Body>
+                <p>
+                  Você tem certeza que deseja excluir esta publicação?
+                  <br />
+                  <br /> Suas ações não poderam ser desfeitas.
+                </p>
+                <input
+                  value={newName}
+                  onChange={(e) => {
+                    setNewName(e.target.value);
+                  }}
+                />
+              </Modal.Body>
+
+              <Modal.Footer>
+                <BootButton variant="secondary" onClick={handleClose}>
+                  Cancelar
+                </BootButton>
+                <BootButton variant="primary" onClick={() => editName()}>
+                  Excluir
+                </BootButton>
+              </Modal.Footer>
+            </Modal>
           </Text>
         </Col>
       </Row>
