@@ -1,6 +1,7 @@
 import React from 'react';
 import { Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import IPost from '../../interfaces/IPost';
 import formatDate from '../../utils/formatDate';
 import Text from '../Text';
@@ -8,6 +9,7 @@ import './style.scss';
 
 const Post = (props: { post: IPost; myPosts: boolean }): React.ReactElement => {
   const { post, myPosts } = props;
+  const { logged } = useAuth();
 
   return (
     <>
@@ -17,7 +19,7 @@ const Post = (props: { post: IPost; myPosts: boolean }): React.ReactElement => {
             <Text as="h2" size="1rem" weight={700} className="title">
               <Link to={`/actions/post/${post.id}`}>{post.title.substring(0, 50)}</Link>
             </Text>
-            <Text as="strong" weight={700} size="0.75rem" className="category">
+            <Text as="strong" weight={700} size="0.75rem" className="category__clickable">
               <Link to={`/category/${post.category.id}`}>{post.category.title || '???'}</Link>
             </Text>
           </div>
@@ -34,15 +36,30 @@ const Post = (props: { post: IPost; myPosts: boolean }): React.ReactElement => {
             <Text as="h2" size="1.5rem" weight={700} className="title">
               <Link to={`/post/${post.id}`}>{post.title}</Link>
             </Text>
-            <Text as="span" weight={500} className="owner">
-              Publicado por:{' '}
-              <Link to={`/user/${post.owner.id}`}>
-                <strong>{post.owner.name || '???'}</strong>
-              </Link>
-            </Text>
-            <Text as="strong" weight={700} className="category">
-              <Link to={`/category/${post.category.id}`}>{post.category.title}</Link>
-            </Text>
+            {logged ? (
+              <>
+                <Text as="span" weight={500} className="owner__clickable">
+                  Publicado por:{' '}
+                  <Link to={`/user/${post.owner.id}`}>
+                    <strong>{post.owner.name || '???'}</strong>
+                  </Link>
+                </Text>
+
+                <Text as="strong" weight={700} className="category__clickable">
+                  <Link to={`/category/${post.category.id}`}>{post.category.title}</Link>
+                </Text>
+              </>
+            ) : (
+              <>
+                <Text as="span" weight={500}>
+                  Publicado por: <strong className="owner">{post.owner.name || '???'}</strong>
+                </Text>
+
+                <Text as="strong" weight={700} className="category">
+                  {post.category.title}
+                </Text>
+              </>
+            )}
           </div>
           <Text as="h2" size="1rem" weight={500} className="description">
             {post.description}
