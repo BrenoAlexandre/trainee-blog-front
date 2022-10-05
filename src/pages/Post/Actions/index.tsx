@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Form, Formik } from 'formik';
 import * as yup from 'yup';
-import { Col, Row } from 'react-bootstrap';
+import { Col, Modal, Row, Button as BootButton } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import Input from '../../../components/Input';
 import Section from '../../../components/Section';
@@ -46,6 +46,10 @@ const Post: React.FunctionComponent = () => {
   const [loader, setLoader] = useState<boolean>(false);
   const [initialValues, setInitialValues] = useState(defaultValue as ICreate);
   const [categories, setCategories] = useState<ICategory[]>([]);
+  const [open, setOpen] = useState<boolean>(false);
+
+  const handleClose = (): void => setOpen(false);
+  const handleOpen = (): void => setOpen(true);
 
   async function submitHandler(values: ICreate): Promise<void> {
     try {
@@ -189,15 +193,39 @@ const Post: React.FunctionComponent = () => {
                       {id ? 'Editar' : 'Criar'} publicação
                     </Button>
                     {id && values.owner === user.id && (
-                      <Button
-                        cy="test-deletePost"
-                        variant="danger"
-                        disabled={!!loader}
-                        style={{ marginLeft: '5px' }}
-                        onClick={() => deleteHandler()}
-                      >
-                        Deletar publicação
-                      </Button>
+                      <>
+                        <Button
+                          cy="test-deletePost"
+                          variant="danger"
+                          disabled={!!loader}
+                          style={{ marginLeft: '5px' }}
+                          onClick={() => handleOpen()}
+                        >
+                          Deletar publicação
+                        </Button>
+                        <Modal show={open} onHide={handleClose}>
+                          <Modal.Header closeButton>
+                            <Modal.Title>Excluir publicação?</Modal.Title>
+                          </Modal.Header>
+
+                          <Modal.Body>
+                            <p>
+                              Você tem certeza que deseja excluir esta publicação?
+                              <br />
+                              <br /> Suas ações não poderam ser desfeitas.
+                            </p>
+                          </Modal.Body>
+
+                          <Modal.Footer>
+                            <BootButton variant="secondary" onClick={handleClose}>
+                              Cancelar
+                            </BootButton>
+                            <BootButton variant="primary" onClick={() => deleteHandler()}>
+                              Excluir
+                            </BootButton>
+                          </Modal.Footer>
+                        </Modal>
+                      </>
                     )}
                   </Col>
                 </Row>

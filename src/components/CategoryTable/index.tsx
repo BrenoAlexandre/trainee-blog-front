@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Col, ListGroupItem, Row } from 'react-bootstrap';
+import { Button, Card, Col, ListGroupItem, Modal, Row } from 'react-bootstrap';
 import { HiTrash } from 'react-icons/hi';
 import { useAuth } from '../../contexts/AuthContext';
 import { ICategory } from '../../interfaces';
@@ -11,12 +11,22 @@ import './style.scss';
 const CategoryTable = (): React.ReactElement => {
   const { user } = useAuth();
   const [categories, setCategories] = useState<ICategory[]>([]);
+  const [open, setOpen] = useState<boolean>(false);
+  const [delId, setDelId] = useState<string>('');
+
+  const handleClose = (): void => setOpen(false);
+  const handleOpen = (id: string): void => {
+    setDelId(id);
+    setOpen(true);
+  };
 
   async function deleteHandler(id: string): Promise<void> {
     try {
       categoryService.deleteCategory(id);
       const newCategories = categories.filter((category) => category.id !== id);
       setCategories(newCategories);
+      setDelId('');
+      handleClose();
     } catch (error) {
       toastMsg(ToastType.Warning, 'Você não pode deletar uma categoria relacionada a publicações');
     }
@@ -44,10 +54,32 @@ const CategoryTable = (): React.ReactElement => {
                 <HiTrash
                   size={17}
                   className="table__icon-trash table__icon-svg"
-                  onClick={() => deleteHandler(category.id)}
+                  onClick={() => handleOpen(category.id)}
                 />
               </ListGroupItem>
             ))}
+            <Modal show={open} onHide={handleClose}>
+              <Modal.Header closeButton>
+                <Modal.Title>Excluir categoria?</Modal.Title>
+              </Modal.Header>
+
+              <Modal.Body>
+                <p>
+                  Você tem certeza que deseja excluir esta categoria?
+                  <br />
+                  <br /> Suas ações não poderam ser desfeitas.
+                </p>
+              </Modal.Body>
+
+              <Modal.Footer>
+                <Button variant="secondary" onClick={handleClose}>
+                  Cancelar
+                </Button>
+                <Button variant="primary" onClick={() => deleteHandler(delId)}>
+                  Excluir
+                </Button>
+              </Modal.Footer>
+            </Modal>
           </>
         ) : (
           <Row>
