@@ -1,14 +1,20 @@
 import IPost from '../interfaces/IPost';
 import HttpClient from './httpClient';
 
+interface PostsReturn {
+  data: IPost[];
+  previous: number;
+  next: number;
+}
+
 class PostService {
   static async getPost(id: string): Promise<IPost> {
     const { data } = await HttpClient.api.get(`/post/${id}`);
     return data;
   }
 
-  static async getPosts(): Promise<IPost[]> {
-    const { data } = await HttpClient.api.get(`/post`);
+  static async getPosts(page: number, take: number): Promise<PostsReturn> {
+    const { data } = await HttpClient.api.get(`/post/page=${page}&take=${take}`);
     return data;
   }
 

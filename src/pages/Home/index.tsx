@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import toastMsg, { ToastType } from '../../utils/toastMsg';
@@ -13,14 +13,29 @@ import PostService from '../../services/posts.service';
 const Home: React.FunctionComponent = () => {
   const navigate = useNavigate();
   const { user, logged, Logout } = useAuth();
+  const currentPage = useRef<number>(0);
   const [posts, setPosts] = useState<IPost[]>([]);
   const [myPosts, setMyPosts] = useState<IPost[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const hideSeeMore = useRef<boolean>(false);
 
-  async function fetchPosts(): Promise<IPost[]> {
-    const dbPosts = await PostService.getPosts();
-    setPosts(dbPosts);
-    return dbPosts;
-  }
+  const fetchPosts = useCallback((targetPage): void => {
+    setIsLoading(true);
+    PostService.getPosts(targetPage, 5)
+      .then((dbPosts) => {
+        setPosts((state) => [...state, ...dbPosts.data]);
+        currentPage.current = dbPosts.next;
+
+        if (dbPosts.data.length < 5) hideSeeMore.current = true;
+      })
+      .catch((error) => {
+        if (error.response.status === 404) {
+          toastMsg(ToastType.Info, 'Não há mais publicações novas.');
+          hideSeeMore.current = true;
+        } else toastMsg(ToastType.Error, 'Ocorreu um problema ao carregar suas vagas. Por favor, tente novamente.');
+      })
+      .finally(() => setIsLoading(false));
+  }, []);
 
   async function fetchMyPosts(): Promise<IPost[]> {
     const dbPosts = await PostService.getMyPosts();
@@ -28,8 +43,7 @@ const Home: React.FunctionComponent = () => {
     return dbPosts;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function logoutHandler(): any {
+  function logoutHandler(): void {
     setMyPosts([]);
     Logout();
   }
@@ -39,11 +53,11 @@ const Home: React.FunctionComponent = () => {
   }
 
   useEffect(() => {
-    fetchPosts();
+    fetchPosts(currentPage.current);
     if (user && logged) {
       fetchMyPosts();
     }
-  }, [user, logged]);
+  }, [user, logged, fetchPosts]);
 
   return (
     <Section className="home" title="Página inicial" description="Página inicial">
@@ -100,6 +114,17 @@ const Home: React.FunctionComponent = () => {
         </Col>
         <Col md={9}>
           <PostTable posts={posts} myPosts={false} />
+          {!hideSeeMore.current && (
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={isLoading}
+              cy="test-seeMore"
+              onClick={() => fetchPosts(currentPage.current)}
+            >
+              Carregar mais
+            </Button>
+          )}
         </Col>
         <Col md={3}>
           <Text as="h2" size="1.5rem" weight={500}>

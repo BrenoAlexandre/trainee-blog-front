@@ -83,11 +83,8 @@ const User: React.FunctionComponent = () => {
               </Modal.Header>
 
               <Modal.Body>
-                <p>
-                  Você tem certeza que deseja excluir esta publicação?
-                  <br />
-                  <br /> Suas ações não poderam ser desfeitas.
-                </p>
+                Nome do usuário:
+                <br />
                 <input
                   value={newName}
                   onChange={(e) => {
@@ -101,7 +98,7 @@ const User: React.FunctionComponent = () => {
                   Cancelar
                 </BootButton>
                 <BootButton variant="primary" onClick={() => editName()}>
-                  Excluir
+                  Confirmar edição
                 </BootButton>
               </Modal.Footer>
             </Modal>
