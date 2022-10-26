@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import PostTable from '../../components/PostTable';
@@ -13,22 +13,30 @@ const Category: React.FunctionComponent = () => {
   const [posts, setPosts] = useState<IPost[]>([]);
   const [category, setCategory] = useState<string>('');
 
+  const getCategoryPosts = useCallback(() => {
+    if (id) {
+      PostService.getCategoryPosts(id)
+        .then((res) => {
+          setPosts(res);
+          setCategory(res[0].category.title);
+        })
+        .catch((error) => {
+          toastMsg(ToastType.Error, (error as Error).message);
+        });
+    }
+  }, [id]);
+
   useEffect(() => {
-    async function getCategoryPosts(): Promise<void> {
-      if (id) {
-        await PostService.getCategoryPosts(id)
-          .then((res) => {
-            setPosts(res);
-            setCategory(res[0].category.title);
-          })
-          .catch((error) => {
-            toastMsg(ToastType.Error, (error as Error).message);
-          });
-      }
+    let isCleanning = false;
+
+    if (!isCleanning) {
+      getCategoryPosts();
     }
 
-    getCategoryPosts();
-  }, [id, posts]);
+    return () => {
+      isCleanning = true;
+    };
+  }, [getCategoryPosts]);
 
   return (
     <Section className="home" title="Página inicial" description="Página inicial">
@@ -41,7 +49,7 @@ const Category: React.FunctionComponent = () => {
       </Row>
       <Row>
         <Col md={9}>
-          <PostTable posts={posts} myPosts={false} />
+          <PostTable posts={posts} />
         </Col>
       </Row>
     </Section>

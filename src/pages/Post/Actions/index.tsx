@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Form, Formik } from 'formik';
 import * as yup from 'yup';
-import { Col, Modal, Row, Button as BootButton } from 'react-bootstrap';
+import { Col, Row } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import Input from '../../../components/Input';
 import Section from '../../../components/Section';
@@ -12,6 +12,7 @@ import toastMsg, { ToastType } from '../../../utils/toastMsg';
 import { ICategory } from '../../../interfaces';
 import categoryService from '../../../services/category.service';
 import { useAuth } from '../../../contexts/AuthContext';
+import { CustomModal } from '../../../components/CustomModal';
 
 const createSchema = yup.object().shape({
   title: yup.string().defined('O título é obrigatório').max(100, 'O título deve ter menos de 100 caracteres'),
@@ -48,10 +49,10 @@ const Post: React.FunctionComponent = () => {
   const [loader, setLoader] = useState<boolean>(false);
   const [initialValues, setInitialValues] = useState(defaultValue as ICreate);
   const [categories, setCategories] = useState<ICategory[]>([]);
-  const [open, setOpen] = useState<boolean>(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
 
-  const handleClose = (): void => setOpen(false);
-  const handleOpen = (): void => setOpen(true);
+  const handleClose = (): void => setShowModal(false);
+  const handleOpen = (): void => setShowModal(true);
 
   async function submitHandler(values: ICreate): Promise<void> {
     try {
@@ -209,28 +210,20 @@ const Post: React.FunctionComponent = () => {
                         >
                           Deletar publicação
                         </Button>
-                        <Modal show={open} onHide={handleClose}>
-                          <Modal.Header closeButton>
-                            <Modal.Title>Excluir publicação?</Modal.Title>
-                          </Modal.Header>
-
-                          <Modal.Body>
+                        {showModal && (
+                          <CustomModal
+                            title="Excluir publicação?"
+                            actionButtonTitle="excluir"
+                            actionFn={() => deleteHandler()}
+                            handleClose={handleClose}
+                          >
                             <p>
                               Você tem certeza que deseja excluir esta publicação?
                               <br />
                               <br /> Suas ações não poderam ser desfeitas.
                             </p>
-                          </Modal.Body>
-
-                          <Modal.Footer>
-                            <BootButton variant="secondary" onClick={handleClose}>
-                              Cancelar
-                            </BootButton>
-                            <BootButton variant="primary" onClick={() => deleteHandler()}>
-                              Excluir
-                            </BootButton>
-                          </Modal.Footer>
-                        </Modal>
+                          </CustomModal>
+                        )}
                       </>
                     )}
                   </Col>

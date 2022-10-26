@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Button as BootButton, Col, Modal, Row } from 'react-bootstrap';
 import { HiPencil } from 'react-icons/hi';
 import { useNavigate, useParams } from 'react-router-dom';
-import CategoryTable from '../../components/CategoryTable';
+import CategoryTable from './components/CategoryTable';
 import PostTable from '../../components/PostTable';
 import Section from '../../components/Section';
 import Text from '../../components/Text';
@@ -13,11 +13,15 @@ import PostService from '../../services/posts.service';
 import UsersService from '../../services/users.service';
 import toastMsg, { ToastType } from '../../utils/toastMsg';
 
+const defaultProfile: IUser = { id: '', name: '', email: '', role: '' };
+
 const User: React.FunctionComponent = () => {
   const { id } = useParams();
-  const { user, checkToken } = useAuth();
+  const { user, checkToken, updateUserName } = useAuth();
+
   const navigate = useNavigate();
-  const [profile, setProfile] = useState<IUser>({ id: '', name: '', email: '', role: '' });
+
+  const [profile, setProfile] = useState<IUser>(defaultProfile);
   const [posts, setPosts] = useState<IPost[]>([]);
   const [newName, setNewName] = useState<string>('');
   const [open, setOpen] = useState<boolean>(false);
@@ -32,6 +36,7 @@ const User: React.FunctionComponent = () => {
     try {
       await UsersService.update(newName).then(() => {
         setProfile({ ...profile, name: newName });
+        updateUserName(newName);
         setNewName('');
         handleClose();
         toastMsg(ToastType.Success, 'Usuário alterado com sucesso!');
@@ -41,26 +46,42 @@ const User: React.FunctionComponent = () => {
     }
   }
 
+  const validate = useCallback(() => {
+    const userJWTIsValid = checkToken();
+
+    if (!userJWTIsValid) navigate(-1);
+  }, [checkToken, navigate]);
+
+  const getUser = useCallback(async () => {
+    if (id) {
+      const dbUser = await UsersService.findById(id);
+      setProfile(dbUser);
+    }
+  }, [id]);
+
+  const getUserPosts = useCallback(async () => {
+    if (id) {
+      const dbPosts = await PostService.getUserPosts(id);
+      setPosts(dbPosts);
+    }
+  }, [id]);
+
   useEffect(() => {
-    const isValid = checkToken();
-    if (!isValid) navigate(-1);
+    let isCleanning = false;
 
-    async function getUser(): Promise<void> {
+    if (!isCleanning) {
+      validate();
+
       if (id) {
-        const dbUser = await UsersService.findById(id);
-        setProfile(dbUser);
-      }
-    }
-    async function getUserPosts(): Promise<void> {
-      if (id) {
-        const dbPosts = await PostService.getUserPosts(id);
-        setPosts(dbPosts);
+        getUser();
+        getUserPosts();
       }
     }
 
-    getUser();
-    getUserPosts();
-  }, [checkToken, id, navigate]);
+    return () => {
+      isCleanning = true;
+    };
+  }, [id, getUserPosts, getUser, navigate, validate]);
   return (
     <Section className="home" title="Página inicial" description="Página inicial">
       {user.id === id && (
@@ -107,7 +128,7 @@ const User: React.FunctionComponent = () => {
       </Row>
       <Row>
         <Col md={9}>
-          <PostTable posts={posts} myPosts={false} profileId={id} />
+          <PostTable posts={posts} profileId={id} />
         </Col>
         <Col md={3}>
           {user.id === id && user.role === 'admin' && (

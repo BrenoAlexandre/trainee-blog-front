@@ -28,7 +28,7 @@ const Category: React.FunctionComponent = () => {
   const navigate = useNavigate();
   const [loader, setLoader] = useState<boolean>(false);
 
-  async function submitHandler(values: ICreate): Promise<void> {
+  const submitHandler = async (values: ICreate): Promise<void> => {
     try {
       const { title } = values;
       setLoader(true);
@@ -42,7 +42,7 @@ const Category: React.FunctionComponent = () => {
       setLoader(false);
       toastMsg(ToastType.Error, (error as Error).message);
     }
-  }
+  };
 
   return (
     <Section className="create" title="Criar categoria" description="Criar categoria">

@@ -24,7 +24,10 @@ interface AuthContextData {
   Login({ data, headers }: IContextLogin): Promise<void>;
   Logout(): void;
   checkToken(): boolean;
+  updateUserName(newName: string): void;
 }
+
+const emptyUser = { id: '', name: '', email: '', role: '', exp: 0 };
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
@@ -35,7 +38,7 @@ export function useAuth(): AuthContextData {
 }
 
 export const AuthProvider = ({ children }: { children: React.ReactElement }): React.ReactElement => {
-  const [user, setUser] = useState<IContextUser>({ id: '', name: '', email: '', role: '', exp: 0 });
+  const [user, setUser] = useState<IContextUser>(emptyUser);
 
   useEffect(() => {
     const localToken = localStorage.getItem('authorization');
@@ -45,7 +48,6 @@ export const AuthProvider = ({ children }: { children: React.ReactElement }): Re
 
     if (localToken && localUser) {
       const objUser: IContextUser = JSON.parse(localUser);
-      // eslint-disable-next-line radix
       const expDate = new Date(objUser.exp * 1000);
 
       if (expDate < new Date()) {
@@ -73,10 +75,10 @@ export const AuthProvider = ({ children }: { children: React.ReactElement }): Re
     }
   }
 
-  function Logout(): void {
+  const Logout = (): void => {
     localStorage.clear();
-    setUser({ id: '', name: '', email: '', role: '', exp: 0 });
-  }
+    setUser(emptyUser);
+  };
 
   function checkToken(): boolean {
     if (new Date(user.exp * 1000) < new Date()) {
@@ -88,8 +90,12 @@ export const AuthProvider = ({ children }: { children: React.ReactElement }): Re
     return true;
   }
 
+  const updateUserName = (newName: string): void => {
+    setUser({ ...user, name: newName });
+  };
+
   return (
-    <AuthContext.Provider value={{ logged: !!user.name, user, Login, Logout, checkToken }}>
+    <AuthContext.Provider value={{ logged: !!user.name, user, Login, Logout, checkToken, updateUserName }}>
       {children}
     </AuthContext.Provider>
   );

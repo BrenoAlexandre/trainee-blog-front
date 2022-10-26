@@ -9,55 +9,67 @@ import Text from '../../components/Text';
 import { useAuth } from '../../contexts/AuthContext';
 import IPost from '../../interfaces/IPost';
 import PostService from '../../services/posts.service';
+import UserPostsTable from './components/UserPosts';
+
+function toast(msg: string): void {
+  toastMsg(ToastType.Warning, msg);
+}
 
 const Home: React.FunctionComponent = () => {
   const navigate = useNavigate();
   const { user, logged, Logout } = useAuth();
-  const currentPage = useRef<number>(0);
   const [posts, setPosts] = useState<IPost[]>([]);
   const [myPosts, setMyPosts] = useState<IPost[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const targetPage = useRef<number | null>(0);
   const hideSeeMore = useRef<boolean>(false);
 
-  const fetchPosts = useCallback((targetPage): void => {
-    setIsLoading(true);
-    PostService.getPosts(targetPage, 5)
-      .then((dbPosts) => {
-        setPosts((state) => [...state, ...dbPosts.data]);
-        currentPage.current = dbPosts.next;
+  const fetchPosts = useCallback(
+    (page): void => {
+      setIsLoading(true);
 
-        if (dbPosts.data.length < 5) hideSeeMore.current = true;
-      })
-      .catch((error) => {
-        if (error.response.status === 404) {
-          toastMsg(ToastType.Info, 'Não há mais publicações novas.');
-          hideSeeMore.current = true;
-        } else toastMsg(ToastType.Error, 'Ocorreu um problema ao carregar suas vagas. Por favor, tente novamente.');
-      })
-      .finally(() => setIsLoading(false));
-  }, []);
+      PostService.getPosts(page, 5)
+        .then((response) => {
+          setPosts((state) => [...state, ...response.data]);
+          targetPage.current = response.next;
 
-  async function fetchMyPosts(): Promise<IPost[]> {
-    const dbPosts = await PostService.getMyPosts();
-    setMyPosts(dbPosts);
-    return dbPosts;
-  }
+          if (!response.next) hideSeeMore.current = true;
+        })
+        .catch((error) => {
+          if (error.response.status === 404) {
+            toastMsg(ToastType.Info, 'Não há mais publicações.');
+            hideSeeMore.current = true;
+          } else toastMsg(ToastType.Error, 'Ocorreu um problema ao carregar suas vagas. Por favor, tente novamente.');
+        })
+        .finally(() => setIsLoading(false));
+      if (user.id) {
+        setIsLoading(true);
+
+        PostService.getUserPosts(user.id)
+          .then((response) => {
+            setMyPosts(response);
+          })
+          .finally(() => setIsLoading(false));
+      }
+    },
+    [user.id]
+  );
 
   function logoutHandler(): void {
     setMyPosts([]);
     Logout();
   }
 
-  function toast(msg: string): void {
-    toastMsg(ToastType.Warning, msg);
-  }
-
   useEffect(() => {
-    fetchPosts(currentPage.current);
-    if (user && logged) {
-      fetchMyPosts();
+    let isCleanning = false;
+
+    if (!isCleanning) {
+      fetchPosts(targetPage.current);
     }
-  }, [user, logged, fetchPosts]);
+    return () => {
+      isCleanning = true;
+    };
+  }, [fetchPosts]);
 
   return (
     <Section className="home" title="Página inicial" description="Página inicial">
@@ -89,48 +101,45 @@ const Home: React.FunctionComponent = () => {
                 variant="secondary"
                 cy="test-create"
                 onClick={() => {
-                  if (user.role !== 'admin') {
-                    toast('Apenas admins podem criar novas categorias.');
-                  } else navigate('/actions/category');
+                  navigate('/actions/category');
                 }}
               >
                 Nova Categoria
               </Button>
             </div>
           )}
-          {!logged ? (
-            <div style={{ marginLeft: '5px' }}>
-              <Button type="button" variant="secondary" cy="test-create" onClick={() => navigate('/')}>
-                Fazer login
-              </Button>
-            </div>
-          ) : (
+          {logged ? (
             <div style={{ marginLeft: '5px' }}>
               <Button type="button" variant="dark" cy="test-create" onClick={() => logoutHandler()}>
                 Encerrar sessão
               </Button>
             </div>
+          ) : (
+            <div style={{ marginLeft: '5px' }}>
+              <Button type="button" variant="secondary" cy="test-create" onClick={() => navigate('/')}>
+                Fazer login
+              </Button>
+            </div>
           )}
         </Col>
         <Col md={9}>
-          <PostTable posts={posts} myPosts={false} />
-          {!hideSeeMore.current && (
-            <Button
-              type="button"
-              variant="secondary"
-              disabled={isLoading}
-              cy="test-seeMore"
-              onClick={() => fetchPosts(currentPage.current)}
-            >
-              Carregar mais
-            </Button>
-          )}
+          <PostTable posts={posts} />
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={isLoading}
+            cy="test-seeMore"
+            style={{ visibility: hideSeeMore.current ? 'hidden' : 'visible' }}
+            onClick={() => fetchPosts(targetPage.current)}
+          >
+            Carregar mais
+          </Button>
         </Col>
         <Col md={3}>
           <Text as="h2" size="1.5rem" weight={500}>
             Minhas publicações
           </Text>
-          <PostTable posts={myPosts} myPosts />
+          <UserPostsTable posts={myPosts} />
         </Col>
       </Row>
     </Section>

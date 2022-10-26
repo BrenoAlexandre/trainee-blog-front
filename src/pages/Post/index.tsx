@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import Section from '../../components/Section';
@@ -19,16 +19,24 @@ const Post: React.FunctionComponent = () => {
     created_at: new Date(),
   });
 
+  const findPost = useCallback(async () => {
+    if (id) {
+      const dbPost = await PostService.getPost(id);
+      setPost({ ...dbPost });
+    }
+  }, [id]);
+
   useEffect(() => {
-    async function findPost(): Promise<void> {
-      if (id) {
-        const dbPost = await PostService.getPost(id);
-        setPost({ ...dbPost });
-      }
+    let isCleanning = false;
+
+    if (!isCleanning) {
+      findPost();
     }
 
-    findPost();
-  }, [id]);
+    return () => {
+      isCleanning = true;
+    };
+  }, [findPost]);
 
   return (
     <Section className="home" title="Página inicial" description="Página inicial">

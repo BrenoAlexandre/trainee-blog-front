@@ -3,8 +3,9 @@ import HttpClient from './httpClient';
 
 interface PostsReturn {
   data: IPost[];
-  previous: number;
-  next: number;
+  previous: number | null;
+  next: number | null;
+  total: number;
 }
 
 class PostService {
@@ -14,12 +15,7 @@ class PostService {
   }
 
   static async getPosts(page: number, take: number): Promise<PostsReturn> {
-    const { data } = await HttpClient.api.get(`/post/page=${page}&take=${take}`);
-    return data;
-  }
-
-  static async getMyPosts(): Promise<IPost[]> {
-    const { data } = await HttpClient.api.get(`/post/myPosts`);
+    const { data } = await HttpClient.api.get(`/post?page=${page}&take=${take}`);
     return data;
   }
 
