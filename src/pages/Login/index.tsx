@@ -54,16 +54,16 @@ const LoginPage: React.FunctionComponent = () => {
   }
 
   useEffect(() => {
-    let isCleanning = false;
+    let isCleaning = false;
 
-    if (user && logged) {
-      if (!isCleanning) {
+    if (!isCleaning) {
+      if (user && logged) {
         navigate('/home');
       }
     }
 
     return () => {
-      isCleanning = true;
+      isCleaning = true;
     };
   }, [logged, navigate, user]);
 

@@ -12,7 +12,7 @@ import toastMsg, { ToastType } from '../../../utils/toastMsg';
 import { ICategory } from '../../../interfaces';
 import categoryService from '../../../services/category.service';
 import { useAuth } from '../../../contexts/AuthContext';
-import { CustomModal } from '../../../components/CustomModal';
+import { CustomActionModal } from '../../../components/CustomActionModal';
 
 const createSchema = yup.object().shape({
   title: yup.string().defined('O título é obrigatório').max(100, 'O título deve ter menos de 100 caracteres'),
@@ -55,24 +55,19 @@ const Post: React.FunctionComponent = () => {
   const handleOpen = (): void => setShowModal(true);
 
   async function submitHandler(values: ICreate): Promise<void> {
-    try {
-      const { title, description, category } = values;
-      setLoader(true);
+    const { title, description, category } = values;
+    setLoader(true);
 
-      if (id) {
-        PostService.updatePost(id, title, description, category);
-        toastMsg(ToastType.Success, 'Atualização realizada com sucesso!');
-      } else {
-        await PostService.publishPost(title, description, category);
-        toastMsg(ToastType.Success, 'Publicação realizada com sucesso!');
-      }
-
-      setLoader(false);
-      navigate(-1);
-    } catch (error) {
-      setLoader(false);
-      toastMsg(ToastType.Error, (error as Error).message);
+    if (id) {
+      PostService.updatePost(id, title, description, category);
+      toastMsg(ToastType.Success, 'Atualização realizada com sucesso!');
+    } else {
+      await PostService.publishPost(title, description, category);
+      toastMsg(ToastType.Success, 'Publicação realizada com sucesso!');
     }
+
+    setLoader(false);
+    navigate(-1);
   }
 
   async function deleteHandler(): Promise<void> {
@@ -89,33 +84,24 @@ const Post: React.FunctionComponent = () => {
 
     async function getPostById(): Promise<void> {
       if (id) {
-        await PostService.getPost(id)
-          .then((res) => {
-            if (res) {
-              const obj = {
-                ownerId: res.owner.id,
-                title: res.title,
-                description: res.description,
-                category: res.category.id,
-                owner: res.owner.id,
-              } as ICreate;
-              setInitialValues(obj);
-            }
-          })
-          .catch((error) => {
-            toastMsg(ToastType.Error, (error as Error).message);
-          });
+        await PostService.getPost(id).then((res) => {
+          if (res) {
+            const obj = {
+              ownerId: res.owner.id,
+              title: res.title,
+              description: res.description,
+              category: res.category.id,
+              owner: res.owner.id,
+            } as ICreate;
+            setInitialValues(obj);
+          }
+        });
       }
     }
     async function getCategories(): Promise<void> {
-      await categoryService
-        .getCategories()
-        .then((res) => {
-          setCategories(res);
-        })
-        .catch((error) => {
-          toastMsg(ToastType.Error, (error as Error).message);
-        });
+      await categoryService.getCategories().then((res) => {
+        setCategories(res);
+      });
     }
 
     getPostById();
@@ -211,7 +197,7 @@ const Post: React.FunctionComponent = () => {
                           Deletar publicação
                         </Button>
                         {showModal && (
-                          <CustomModal
+                          <CustomActionModal
                             title="Excluir publicação?"
                             actionButtonTitle="excluir"
                             actionFn={() => deleteHandler()}
@@ -220,9 +206,9 @@ const Post: React.FunctionComponent = () => {
                             <p>
                               Você tem certeza que deseja excluir esta publicação?
                               <br />
-                              <br /> Suas ações não poderam ser desfeitas.
+                              <br /> Suas ações não poderão ser desfeitas.
                             </p>
-                          </CustomModal>
+                          </CustomActionModal>
                         )}
                       </>
                     )}

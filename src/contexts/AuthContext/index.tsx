@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { AxiosError, AxiosResponseHeaders } from 'axios';
+import { AxiosError } from 'axios';
 import toastMsg, { ToastType } from '../../utils/toastMsg';
 import setTokenStorage from '../../utils/setTokenStorage';
 import { IAuthUser } from '../../interfaces';
@@ -15,13 +15,13 @@ interface IContextUser {
 
 interface IContextLogin {
   data: IAuthUser;
-  headers: AxiosResponseHeaders;
+  authorization: string;
 }
 
 interface AuthContextData {
   logged: boolean;
   user: IContextUser;
-  Login({ data, headers }: IContextLogin): Promise<void>;
+  Login({ data, authorization }: IContextLogin): Promise<void>;
   Logout(): void;
   checkToken(): boolean;
   updateUserName(newName: string): void;
@@ -40,59 +40,68 @@ export function useAuth(): AuthContextData {
 export const AuthProvider = ({ children }: { children: React.ReactElement }): React.ReactElement => {
   const [user, setUser] = useState<IContextUser>(emptyUser);
 
-  useEffect(() => {
-    const localToken = localStorage.getItem('authorization');
-    const localUser = localStorage.getItem('USER');
-
-    setAxiosAuth();
-
-    if (localToken && localUser) {
-      const objUser: IContextUser = JSON.parse(localUser);
-      const expDate = new Date(objUser.exp * 1000);
-
-      if (expDate < new Date()) {
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        Logout();
-        toastMsg(ToastType.Info, 'Sua sessão expirou');
-      }
-
-      setUser(JSON.parse(localUser));
-    }
-  }, []);
-
-  async function Login({ data, headers }: IContextLogin): Promise<void> {
+  const Login = async ({ data, authorization }: IContextLogin): Promise<void> => {
     try {
       localStorage.clear();
       setUser(data);
 
-      setTokenStorage('authorization', headers.authorization);
+      setTokenStorage('authorization', authorization);
       localStorage.setItem(
         'USER',
         JSON.stringify({ id: data.id, name: data.name, email: data.email, role: data.role, exp: data.exp })
       );
     } catch (error) {
-      toastMsg(ToastType.Error, (error as AxiosError).response?.data || 'Internal Server Error!');
+      toastMsg(ToastType.Error, (error as AxiosError).cause?.message || 'Internal Server Error!');
     }
-  }
+  };
 
   const Logout = (): void => {
     localStorage.clear();
     setUser(emptyUser);
   };
 
-  function checkToken(): boolean {
-    if (new Date(user.exp * 1000) < new Date()) {
-      Logout();
-      toastMsg(ToastType.Warning, 'Sua sessão expirou.');
-      return false;
+  const checkToken = (): boolean => {
+    let isValid = false;
+    if (user.exp) {
+      if (new Date(user.exp * 1000) < new Date()) {
+        Logout();
+        toastMsg(ToastType.Warning, 'Sua sessão expirou.');
+      } else isValid = true;
     }
 
-    return true;
-  }
+    return isValid;
+  };
 
   const updateUserName = (newName: string): void => {
     setUser({ ...user, name: newName });
   };
+
+  useEffect(() => {
+    let isCleaning = false;
+    if (!isCleaning) {
+      checkToken();
+    }
+    return () => {
+      isCleaning = true;
+    };
+  });
+
+  useEffect(() => {
+    let isCleaning = false;
+    if (!isCleaning) {
+      const localToken = localStorage.getItem('authorization');
+      const localUser = localStorage.getItem('USER');
+
+      setAxiosAuth();
+
+      if (localToken && localUser) {
+        setUser(JSON.parse(localUser));
+      }
+    }
+    return () => {
+      isCleaning = true;
+    };
+  }, []);
 
   return (
     <AuthContext.Provider value={{ logged: !!user.name, user, Login, Logout, checkToken, updateUserName }}>

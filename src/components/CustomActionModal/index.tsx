@@ -9,7 +9,7 @@ interface IProps {
   children: React.ReactNode;
 }
 
-export const CustomModal = ({
+export const CustomActionModal = ({
   title,
   actionButtonTitle,
   actionFn,

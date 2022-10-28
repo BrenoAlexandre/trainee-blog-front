@@ -52,34 +52,32 @@ const User: React.FunctionComponent = () => {
     if (!userJWTIsValid) navigate(-1);
   }, [checkToken, navigate]);
 
-  const getUser = useCallback(async () => {
-    if (id) {
-      const dbUser = await UsersService.findById(id);
-      setProfile(dbUser);
-    }
-  }, [id]);
+  const getUser = useCallback((userId: string) => {
+    UsersService.findById(userId).then((response) => {
+      setProfile(response);
+    });
+  }, []);
 
-  const getUserPosts = useCallback(async () => {
-    if (id) {
-      const dbPosts = await PostService.getUserPosts(id);
-      setPosts(dbPosts);
-    }
-  }, [id]);
+  const getUserPosts = useCallback((userId: string) => {
+    PostService.getUserPosts(userId).then((response) => {
+      setPosts(response);
+    });
+  }, []);
 
   useEffect(() => {
-    let isCleanning = false;
+    let isCleaning = false;
 
-    if (!isCleanning) {
+    if (!isCleaning) {
       validate();
 
       if (id) {
-        getUser();
-        getUserPosts();
+        getUser(id);
+        getUserPosts(id);
       }
     }
 
     return () => {
-      isCleanning = true;
+      isCleaning = true;
     };
   }, [id, getUserPosts, getUser, navigate, validate]);
   return (

@@ -7,9 +7,13 @@ import IPost from '../../interfaces/IPost';
 import Post from '../Post';
 import './style.scss';
 
-const PostTable = (props: { posts: IPost[]; profileId?: string }): React.ReactElement => {
-  const { posts, profileId } = props;
-  const { user } = useAuth();
+interface IProps {
+  posts: IPost[];
+  profileId?: string;
+}
+
+const PostTable = ({ posts, profileId }: IProps): React.ReactElement => {
+  const { user, logged } = useAuth();
   const navigate = useNavigate();
 
   return (
@@ -21,7 +25,7 @@ const PostTable = (props: { posts: IPost[]; profileId?: string }): React.ReactEl
               key={post.id}
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
             >
-              <Post post={post} myPost={false} />
+              <Post post={post} myPost={false} isLogged={logged} />
               {profileId === user.id && (
                 <HiPencil
                   size={30}

@@ -11,49 +11,39 @@ import IPost from '../../interfaces/IPost';
 import PostService from '../../services/posts.service';
 import UserPostsTable from './components/UserPosts';
 
-function toast(msg: string): void {
+function toastWarn(msg: string): void {
   toastMsg(ToastType.Warning, msg);
 }
 
 const Home: React.FunctionComponent = () => {
   const navigate = useNavigate();
+
   const { user, logged, Logout } = useAuth();
+
   const [posts, setPosts] = useState<IPost[]>([]);
   const [myPosts, setMyPosts] = useState<IPost[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [seeMore, setSeeMore] = useState<boolean>(false);
+
   const targetPage = useRef<number | null>(0);
-  const hideSeeMore = useRef<boolean>(false);
 
-  const fetchPosts = useCallback(
-    (page): void => {
-      setIsLoading(true);
-
-      PostService.getPosts(page, 5)
-        .then((response) => {
-          setPosts((state) => [...state, ...response.data]);
-          targetPage.current = response.next;
-
-          if (!response.next) hideSeeMore.current = true;
-        })
-        .catch((error) => {
-          if (error.response.status === 404) {
-            toastMsg(ToastType.Info, 'Não há mais publicações.');
-            hideSeeMore.current = true;
-          } else toastMsg(ToastType.Error, 'Ocorreu um problema ao carregar suas vagas. Por favor, tente novamente.');
-        })
-        .finally(() => setIsLoading(false));
-      if (user.id) {
-        setIsLoading(true);
-
-        PostService.getUserPosts(user.id)
-          .then((response) => {
-            setMyPosts(response);
-          })
-          .finally(() => setIsLoading(false));
+  const fetchPosts = useCallback((page): void => {
+    PostService.getPosts(page, 5).then((response) => {
+      setPosts((state) => [...state, ...response.data]);
+      if (response.next) {
+        targetPage.current = response.next;
+      } else {
+        targetPage.current = null;
+        setSeeMore(true);
       }
-    },
-    [user.id]
-  );
+    });
+  }, []);
+
+  const fetchLoggedUserPosts = useCallback((userId: string) => {
+    PostService.getUserPosts(userId).then((response) => {
+      setMyPosts(response);
+    });
+  }, []);
 
   function logoutHandler(): void {
     setMyPosts([]);
@@ -61,15 +51,28 @@ const Home: React.FunctionComponent = () => {
   }
 
   useEffect(() => {
-    let isCleanning = false;
-
-    if (!isCleanning) {
+    let isCleaning = false;
+    if (!isCleaning) {
+      setIsLoading(true);
       fetchPosts(targetPage.current);
+      setIsLoading(false);
     }
     return () => {
-      isCleanning = true;
+      isCleaning = true;
     };
   }, [fetchPosts]);
+
+  useEffect(() => {
+    let isCleaning = false;
+    if (!isCleaning) {
+      setIsLoading(true);
+      if (user.id) fetchLoggedUserPosts(user.id);
+      setIsLoading(false);
+    }
+    return () => {
+      isCleaning = true;
+    };
+  }, [fetchLoggedUserPosts, user.id]);
 
   return (
     <Section className="home" title="Página inicial" description="Página inicial">
@@ -88,7 +91,7 @@ const Home: React.FunctionComponent = () => {
             cy="test-create"
             onClick={() => {
               if (!logged) {
-                toast('Faça login na plataforma para criar publicações.');
+                toastWarn('Faça login na plataforma para criar publicações.');
               } else navigate('/actions/post');
             }}
           >
@@ -101,7 +104,9 @@ const Home: React.FunctionComponent = () => {
                 variant="secondary"
                 cy="test-create"
                 onClick={() => {
-                  navigate('/actions/category');
+                  if (!logged) {
+                    toastWarn('Faça login na plataforma como admin para criar categorias.');
+                  } else navigate('/actions/category');
                 }}
               >
                 Nova Categoria
@@ -129,7 +134,7 @@ const Home: React.FunctionComponent = () => {
             variant="secondary"
             disabled={isLoading}
             cy="test-seeMore"
-            style={{ visibility: hideSeeMore.current ? 'hidden' : 'visible' }}
+            style={{ visibility: seeMore ? 'hidden' : 'visible' }}
             onClick={() => fetchPosts(targetPage.current)}
           >
             Carregar mais

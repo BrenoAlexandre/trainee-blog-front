@@ -5,7 +5,7 @@ import { useAuth } from '../../../../contexts/AuthContext';
 import { ICategory } from '../../../../interfaces';
 import categoryService from '../../../../services/category.service';
 import toastMsg, { ToastType } from '../../../../utils/toastMsg';
-import { CustomModal } from '../../../../components/CustomModal';
+import { CustomActionModal } from '../../../../components/CustomActionModal';
 import Text from '../../../../components/Text';
 import './style.scss';
 
@@ -62,7 +62,7 @@ const CategoryTable = (): React.ReactElement => {
             </ListGroupItem>
           ))}
           {showModal && (
-            <CustomModal
+            <CustomActionModal
               handleClose={() => handleClose()}
               title="Excluir categoria?"
               actionButtonTitle="Excluir"
@@ -73,7 +73,7 @@ const CategoryTable = (): React.ReactElement => {
                 <br />
                 <br /> Suas ações não poderam ser desfeitas.
               </p>
-            </CustomModal>
+            </CustomActionModal>
           )}
         </>
       ) : (

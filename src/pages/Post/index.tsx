@@ -5,6 +5,7 @@ import Section from '../../components/Section';
 import Text from '../../components/Text';
 import IPost from '../../interfaces/IPost';
 import PostService from '../../services/posts.service';
+import formatDateUtils from '../../utils/formatDate';
 import './style.scss';
 
 const Post: React.FunctionComponent = () => {
@@ -16,25 +17,29 @@ const Post: React.FunctionComponent = () => {
     category: { id: '', title: '' },
     owner: { id: '', name: '' },
     likes: 0,
-    created_at: new Date(),
+    created_at: '',
   });
 
-  const findPost = useCallback(async () => {
+  const formatDate = (date: string | Date): string =>
+    formatDateUtils(typeof date === 'string' ? date : date.toString());
+
+  const findPost = useCallback(() => {
     if (id) {
-      const dbPost = await PostService.getPost(id);
-      setPost({ ...dbPost });
+      PostService.getPost(id).then((response) => {
+        setPost({ ...response, created_at: formatDate(response.created_at) });
+      });
     }
   }, [id]);
 
   useEffect(() => {
-    let isCleanning = false;
+    let isCleaning = false;
 
-    if (!isCleanning) {
+    if (!isCleaning) {
       findPost();
     }
 
     return () => {
-      isCleanning = true;
+      isCleaning = true;
     };
   }, [findPost]);
 
@@ -80,7 +85,7 @@ const Post: React.FunctionComponent = () => {
           }}
         >
           <Text as="span" size="1rem">
-            Publicado em:
+            Publicado em: {post.created_at}
           </Text>
         </Col>
       </Row>

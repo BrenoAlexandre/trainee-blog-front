@@ -3,15 +3,17 @@ import { Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import IPost from '../../interfaces/IPost';
 import formatDate from '../../utils/formatDate';
+import SecurityLink from '../SecurityLink';
 import Text from '../Text';
 import './style.scss';
 
 interface IProps {
   post: IPost;
   myPost: boolean;
+  isLogged: boolean;
 }
 
-const Post = ({ post, myPost }: IProps): React.ReactElement => (
+const Post = ({ post, myPost, isLogged }: IProps): React.ReactElement => (
   <>
     {myPost ? (
       <Row>
@@ -19,8 +21,10 @@ const Post = ({ post, myPost }: IProps): React.ReactElement => (
           <Text as="h2" size="1rem" weight={700} className="title">
             <Link to={`/actions/post/${post.id}`}>{post.title.substring(0, 50)}</Link>
           </Text>
-          <Text as="strong" weight={700} size="0.75rem" className="category__clickable">
-            <Link to={`/category/${post.category.id}`}>{post.category.title || '???'}</Link>
+          <Text as="strong" weight={700} size="0.75rem" className="category category__clickable">
+            <SecurityLink isActive={isLogged} to={`/category/${post.category.id}`}>
+              {post.category.title || '???'}
+            </SecurityLink>
           </Text>
         </div>
         <Text as="h2" size="1rem" weight={500} className="description__myPost">
@@ -36,15 +40,17 @@ const Post = ({ post, myPost }: IProps): React.ReactElement => (
           <Text as="h2" size="1.5rem" weight={700} className="title">
             <Link to={`/post/${post.id}`}>{post.title}</Link>
           </Text>
-          <Text as="span" weight={500} className="owner__clickable">
+          <Text as="span" weight={500} className="owner owner__clickable">
             Publicado por:{' '}
-            <Link to={`/user/${post.owner.id}`}>
+            <SecurityLink isActive={isLogged} to={`/user/${post.owner.id}`}>
               <strong>{post.owner.name || '???'}</strong>
-            </Link>
+            </SecurityLink>
           </Text>
 
-          <Text as="strong" weight={700} className="category__clickable">
-            <Link to={`/category/${post.category.id}`}>{post.category.title}</Link>
+          <Text as="strong" weight={700} className="category category__clickable">
+            <SecurityLink isActive={isLogged} to={`/category/${post.category.id}`}>
+              <div>{post.category.title || '???'}</div>
+            </SecurityLink>
           </Text>
         </div>
         <Text as="h2" size="1rem" weight={500} className="description">

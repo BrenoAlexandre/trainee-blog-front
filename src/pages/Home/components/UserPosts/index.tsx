@@ -20,50 +20,44 @@ const UserPostsTable = ({ posts, profileId }: IProps): React.ReactElement => {
   return (
     <div>
       <Card>
-        {posts.length > 0 ? (
+        {logged ? (
           <>
-            {logged ? (
-              <>
-                {posts.slice(0, 5).map((post) => (
-                  <ListGroupItem
-                    key={post.id}
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
-                  >
-                    <Post post={post} myPost />
-                    {profileId === user.id && (
-                      <HiPencil
-                        size={30}
-                        className="table__icon-update table__icon-svg"
-                        onClick={() => navigate(`/actions/post/${post.id}`)}
-                      />
-                    )}
-                  </ListGroupItem>
-                ))}
-                <Row>
-                  <Col style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Text as="span" size="0.9rem">
-                      {posts.length > 5 && <Link to={`/user/${user.id}`}> Ver mais </Link>}
-                    </Text>
-                  </Col>
-                </Row>
-              </>
-            ) : (
-              <Row>
-                <Col style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Text as="span" size="0.9rem">
-                    Acesse sua conta e veja suas publicações aqui!
-                  </Text>
-                </Col>
-              </Row>
-            )}
+            {posts.slice(0, 5).map((post) => (
+              <ListGroupItem
+                key={post.id}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+              >
+                <Post post={post} myPost isLogged />
+                {profileId === user.id && (
+                  <HiPencil
+                    size={30}
+                    className="table__icon-update table__icon-svg"
+                    onClick={() => navigate(`/actions/post/${post.id}`)}
+                  />
+                )}
+              </ListGroupItem>
+            ))}
+            <Row>
+              <Col style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Text as="span" size="0.9rem">
+                  {posts.length > 5 ? (
+                    <Link to={`/user/${user.id}`}> Ver mais </Link>
+                  ) : (
+                    posts.length === 0 && (
+                      <Link to="/actions/post" style={{ color: '#000000', textDecoration: 'none' }}>
+                        Comece a publicar!
+                      </Link>
+                    )
+                  )}
+                </Text>
+              </Col>
+            </Row>
           </>
         ) : (
           <Row>
             <Col style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Text as="span" size="0.9rem">
-                <Link to="/actions/post" style={{ color: '#000000', textDecoration: 'none' }}>
-                  Comece a publicar!
-                </Link>
+                Acesse sua conta e veja suas publicações aqui!
               </Text>
             </Col>
           </Row>

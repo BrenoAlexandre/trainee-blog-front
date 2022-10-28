@@ -6,7 +6,6 @@ import Section from '../../components/Section';
 import Text from '../../components/Text';
 import IPost from '../../interfaces/IPost';
 import PostService from '../../services/posts.service';
-import toastMsg, { ToastType } from '../../utils/toastMsg';
 
 const Category: React.FunctionComponent = () => {
   const { id } = useParams();
@@ -15,26 +14,22 @@ const Category: React.FunctionComponent = () => {
 
   const getCategoryPosts = useCallback(() => {
     if (id) {
-      PostService.getCategoryPosts(id)
-        .then((res) => {
-          setPosts(res);
-          setCategory(res[0].category.title);
-        })
-        .catch((error) => {
-          toastMsg(ToastType.Error, (error as Error).message);
-        });
+      PostService.getCategoryPosts(id).then((res) => {
+        setPosts(res);
+        setCategory(res[0].category.title);
+      });
     }
   }, [id]);
 
   useEffect(() => {
-    let isCleanning = false;
+    let isCleaning = false;
 
-    if (!isCleanning) {
+    if (!isCleaning) {
       getCategoryPosts();
     }
 
     return () => {
-      isCleanning = true;
+      isCleaning = true;
     };
   }, [getCategoryPosts]);
 
