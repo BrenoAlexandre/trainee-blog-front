@@ -12,7 +12,7 @@ const Metatag = ({ title, description }: IMetatag): React.ReactElement => (
   <Helmet>
     <meta charSet="utf-8" />
     <title>{`${PROJECT_NAME} ${title}`}</title>
-    {description && <meta name="description" content={description} />}
+    {description ? <meta name="description" content={description} /> : null}
   </Helmet>
 );
 

@@ -82,7 +82,7 @@ const User: React.FunctionComponent = () => {
   }, [id, getUserPosts, getUser, navigate, validate]);
   return (
     <Section className="home" title="Página inicial" description="Página inicial">
-      {user.id === id && (
+      {user.id === id ? (
         <Row>
           <Col md={8}>
             <Text as="h1" size="2rem" weight={700}>
@@ -90,7 +90,7 @@ const User: React.FunctionComponent = () => {
             </Text>
           </Col>
         </Row>
-      )}
+      ) : null}
       <Row>
         <Col md={8}>
           <Text as="h1" size="1.8rem" weight={700}>
@@ -129,7 +129,7 @@ const User: React.FunctionComponent = () => {
           <PostTable posts={posts} profileId={id} />
         </Col>
         <Col md={3}>
-          {user.id === id && user.role === 'admin' && (
+          {user.id === id && user.role === 'admin' ? (
             <>
               <Text as="h2" size="1.5rem" weight={500}>
                 Minhas categorias
@@ -138,7 +138,7 @@ const User: React.FunctionComponent = () => {
                 <CategoryTable />
               </Col>
             </>
-          )}
+          ) : null}
         </Col>
       </Row>
     </Section>

@@ -33,7 +33,7 @@ export function LoaderProvider({ children }: ILoaderProvider): React.ReactElemen
 
   return (
     <LoaderContext.Provider value={value}>
-      {children} {showLoader && <Loader />}
+      {children} {showLoader ? <Loader /> : null}
     </LoaderContext.Provider>
   );
 }

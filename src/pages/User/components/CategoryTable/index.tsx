@@ -61,7 +61,7 @@ const CategoryTable = (): React.ReactElement => {
               />
             </ListGroupItem>
           ))}
-          {showModal && (
+          {showModal ? (
             <CustomActionModal
               handleClose={() => handleClose()}
               title="Excluir categoria?"
@@ -71,10 +71,10 @@ const CategoryTable = (): React.ReactElement => {
               <p>
                 Você tem certeza que deseja excluir esta categoria?
                 <br />
-                <br /> Suas ações não poderam ser desfeitas.
+                <br /> Suas ações não poderão ser desfeitas.
               </p>
             </CustomActionModal>
-          )}
+          ) : null}
         </>
       ) : (
         <Row>

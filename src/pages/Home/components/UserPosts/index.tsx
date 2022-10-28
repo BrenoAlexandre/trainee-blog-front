@@ -28,13 +28,13 @@ const UserPostsTable = ({ posts, profileId }: IProps): React.ReactElement => {
                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
               >
                 <Post post={post} myPost isLogged />
-                {profileId === user.id && (
+                {profileId === user.id ? (
                   <HiPencil
                     size={30}
                     className="table__icon-update table__icon-svg"
                     onClick={() => navigate(`/actions/post/${post.id}`)}
                   />
-                )}
+                ) : null}
               </ListGroupItem>
             ))}
             <Row>
@@ -43,11 +43,13 @@ const UserPostsTable = ({ posts, profileId }: IProps): React.ReactElement => {
                   {posts.length > 5 ? (
                     <Link to={`/user/${user.id}`}> Ver mais </Link>
                   ) : (
-                    posts.length === 0 && (
-                      <Link to="/actions/post" style={{ color: '#000000', textDecoration: 'none' }}>
-                        Comece a publicar!
-                      </Link>
-                    )
+                    <>
+                      {posts.length === 0 ? (
+                        <Link to="/actions/post" style={{ color: '#000000', textDecoration: 'none' }}>
+                          Comece a publicar!
+                        </Link>
+                      ) : null}
+                    </>
                   )}
                 </Text>
               </Col>

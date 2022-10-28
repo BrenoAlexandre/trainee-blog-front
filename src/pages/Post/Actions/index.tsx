@@ -185,7 +185,7 @@ const Post: React.FunctionComponent = () => {
                     <Button type="submit" cy="test-createPost" variant="primary" disabled={!!loader}>
                       {id ? 'Editar' : 'Criar'} publicação
                     </Button>
-                    {id && values.ownerId === user.id && (
+                    {id && values.ownerId === user.id ? (
                       <>
                         <Button
                           cy="test-deletePost"
@@ -196,7 +196,7 @@ const Post: React.FunctionComponent = () => {
                         >
                           Deletar publicação
                         </Button>
-                        {showModal && (
+                        {showModal ? (
                           <CustomActionModal
                             title="Excluir publicação?"
                             actionButtonTitle="excluir"
@@ -209,9 +209,9 @@ const Post: React.FunctionComponent = () => {
                               <br /> Suas ações não poderão ser desfeitas.
                             </p>
                           </CustomActionModal>
-                        )}
+                        ) : null}
                       </>
-                    )}
+                    ) : null}
                   </Col>
                 </Row>
               </Col>

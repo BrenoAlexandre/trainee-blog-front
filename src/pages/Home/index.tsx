@@ -97,7 +97,7 @@ const Home: React.FunctionComponent = () => {
           >
             Nova publicação
           </Button>
-          {user.role === 'admin' && (
+          {user.role === 'admin' ? (
             <div style={{ marginLeft: '5px' }}>
               <Button
                 type="button"
@@ -112,7 +112,7 @@ const Home: React.FunctionComponent = () => {
                 Nova Categoria
               </Button>
             </div>
-          )}
+          ) : null}
           {logged ? (
             <div style={{ marginLeft: '5px' }}>
               <Button type="button" variant="dark" cy="test-create" onClick={() => logoutHandler()}>

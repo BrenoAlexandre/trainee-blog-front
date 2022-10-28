@@ -26,13 +26,13 @@ const PostTable = ({ posts, profileId }: IProps): React.ReactElement => {
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
             >
               <Post post={post} myPost={false} isLogged={logged} />
-              {profileId === user.id && (
+              {profileId === user.id ? (
                 <HiPencil
                   size={30}
                   className="table__icon-update table__icon-svg"
                   onClick={() => navigate(`/actions/post/${post.id}`)}
                 />
-              )}
+              ) : null}
             </ListGroupItem>
           ))}
         </>
