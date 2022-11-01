@@ -12,6 +12,7 @@ import IPost from '../../interfaces/IPost';
 import PostService from '../../services/posts.service';
 import UsersService from '../../services/users.service';
 import toastMsg, { ToastType } from '../../utils/toastMsg';
+import { useCatcher } from '../../hooks/useCatcher';
 
 const defaultProfile: IUser = { id: '', name: '', email: '', role: '' };
 
@@ -20,6 +21,7 @@ const User: React.FunctionComponent = () => {
   const { user, checkToken, updateUserName } = useAuth();
 
   const navigate = useNavigate();
+  const { catcher } = useCatcher();
 
   const [profile, setProfile] = useState<IUser>(defaultProfile);
   const [posts, setPosts] = useState<IPost[]>([]);
@@ -33,17 +35,17 @@ const User: React.FunctionComponent = () => {
   };
 
   async function editName(): Promise<void> {
-    try {
-      await UsersService.update(newName).then(() => {
+    await UsersService.update(newName)
+      .then(() => {
         setProfile({ ...profile, name: newName });
         updateUserName(newName);
         setNewName('');
         handleClose();
         toastMsg(ToastType.Success, 'Usuário alterado com sucesso!');
+      })
+      .catch((error) => {
+        catcher('updateUser', error);
       });
-    } catch (error) {
-      toastMsg(ToastType.Error, (error as Error).message);
-    }
   }
 
   const validate = useCallback(() => {
@@ -53,15 +55,23 @@ const User: React.FunctionComponent = () => {
   }, [checkToken, navigate]);
 
   const getUser = useCallback((userId: string) => {
-    UsersService.findById(userId).then((response) => {
-      setProfile(response);
-    });
+    UsersService.findById(userId)
+      .then((response) => {
+        setProfile(response);
+      })
+      .catch((error) => {
+        catcher('findUserById', error);
+      });
   }, []);
 
   const getUserPosts = useCallback((userId: string) => {
-    PostService.getUserPosts(userId).then((response) => {
-      setPosts(response);
-    });
+    PostService.getUserPosts(userId)
+      .then((response) => {
+        setPosts(response);
+      })
+      .catch((error) => {
+        catcher('getUserPosts', error);
+      });
   }, []);
 
   useEffect(() => {

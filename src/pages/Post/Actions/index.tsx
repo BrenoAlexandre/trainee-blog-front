@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Form, Formik } from 'formik';
 import * as yup from 'yup';
@@ -13,6 +14,7 @@ import { ICategory } from '../../../interfaces';
 import categoryService from '../../../services/category.service';
 import { useAuth } from '../../../contexts/AuthContext';
 import { CustomActionModal } from '../../../components/CustomActionModal';
+import { useCatcher } from '../../../hooks/useCatcher';
 
 const createSchema = yup.object().shape({
   title: yup.string().defined('O título é obrigatório').max(100, 'O título deve ter menos de 100 caracteres'),
@@ -45,7 +47,10 @@ const defaultValue = {
 const Post: React.FunctionComponent = () => {
   const { id } = useParams();
   const { user, checkToken } = useAuth();
+
   const navigate = useNavigate();
+  const { catcher } = useCatcher();
+
   const [loader, setLoader] = useState<boolean>(false);
   const [initialValues, setInitialValues] = useState(defaultValue as ICreate);
   const [categories, setCategories] = useState<ICategory[]>([]);
@@ -59,11 +64,25 @@ const Post: React.FunctionComponent = () => {
     setLoader(true);
 
     if (id) {
-      PostService.updatePost(id, title, description, category);
-      toastMsg(ToastType.Success, 'Atualização realizada com sucesso!');
+      PostService.updatePost(id, title, description, category)
+        .then(() => {
+          toastMsg(ToastType.Success, 'Atualização realizada com sucesso!');
+        })
+        .catch((error) => {
+          if (axios.isAxiosError(error) !== undefined) {
+            catcher('updatePost', error);
+          }
+        });
     } else {
-      await PostService.publishPost(title, description, category);
-      toastMsg(ToastType.Success, 'Publicação realizada com sucesso!');
+      await PostService.publishPost(title, description, category)
+        .then(() => {
+          toastMsg(ToastType.Success, 'Publicação realizada com sucesso!');
+        })
+        .catch((error) => {
+          if (axios.isAxiosError(error) !== undefined) {
+            catcher('publishPost', error);
+          }
+        });
     }
 
     setLoader(false);
@@ -72,7 +91,11 @@ const Post: React.FunctionComponent = () => {
 
   async function deleteHandler(): Promise<void> {
     if (id) {
-      PostService.deletePost(id);
+      PostService.deletePost(id).catch((error) => {
+        if (axios.isAxiosError(error) !== undefined) {
+          catcher('deletePost', error);
+        }
+      });
     }
 
     navigate(-1);
@@ -84,18 +107,24 @@ const Post: React.FunctionComponent = () => {
 
     async function getPostById(): Promise<void> {
       if (id) {
-        await PostService.getPost(id).then((res) => {
-          if (res) {
-            const obj = {
-              ownerId: res.owner.id,
-              title: res.title,
-              description: res.description,
-              category: res.category.id,
-              owner: res.owner.id,
-            } as ICreate;
-            setInitialValues(obj);
-          }
-        });
+        await PostService.getPost(id)
+          .then((res) => {
+            if (res) {
+              const obj = {
+                ownerId: res.owner.id,
+                title: res.title,
+                description: res.description,
+                category: res.category.id,
+                owner: res.owner.id,
+              } as ICreate;
+              setInitialValues(obj);
+            }
+          })
+          .catch((error) => {
+            if (axios.isAxiosError(error) !== undefined) {
+              catcher('getPost', error);
+            }
+          });
       }
     }
     async function getCategories(): Promise<void> {

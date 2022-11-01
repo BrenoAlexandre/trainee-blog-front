@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, { useState } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +10,7 @@ import Button from '../../components/Button';
 import UsersService from '../../services/users.service';
 import toastMsg, { ToastType } from '../../utils/toastMsg';
 import Input from '../../components/Input';
+import { useCatcher } from '../../hooks/useCatcher';
 
 const registrationSchema = yup.object().shape({
   name: yup.string().required('Campo obrigatório'),
@@ -39,22 +41,24 @@ const Registration: React.FunctionComponent = () => {
   const [initialValues] = useState(defaultValue as ICreateUser);
 
   const navigate = useNavigate();
+  const { catcher } = useCatcher();
 
   async function registrationHandler(values: ICreateUser): Promise<void> {
     setLoader(true);
     const { name, email, password, passwordConfirmation } = values;
 
-    try {
-      await UsersService.create({ name, email, password, passwordConfirmation }).then(() => {
+    await UsersService.create({ name, email, password, passwordConfirmation })
+      .then(() => {
+        toastMsg(ToastType.Success, 'Cadastrado com sucesso!');
         navigate('/', { replace: true });
+      })
+      .catch((error) => {
+        if (axios.isAxiosError(error) !== undefined) {
+          catcher('createUser', error);
+        }
       });
 
-      toastMsg(ToastType.Success, 'Cadastrado com sucesso!');
-      setLoader(false);
-    } catch (error) {
-      toastMsg(ToastType.Error, 'Dados inválidos, revise seu cadastro.');
-      setLoader(false);
-    }
+    setLoader(false);
   }
   return (
     <Section className="home" title="Página inicial" description="Página inicial">

@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Card, Col, ListGroupItem, Row } from 'react-bootstrap';
 import { HiTrash } from 'react-icons/hi';
@@ -7,9 +8,11 @@ import categoryService from '../../../../services/category.service';
 import toastMsg, { ToastType } from '../../../../utils/toastMsg';
 import { CustomActionModal } from '../../../../components/CustomActionModal';
 import Text from '../../../../components/Text';
+import { useCatcher } from '../../../../hooks/useCatcher';
 import './style.scss';
 
 const CategoryTable = (): React.ReactElement => {
+  const { catcher } = useCatcher();
   const { user } = useAuth();
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -26,9 +29,17 @@ const CategoryTable = (): React.ReactElement => {
 
   async function deleteHandler(): Promise<void> {
     try {
-      categoryService.deleteCategory(delId);
-      const newCategories = categories.filter((category) => category.id !== delId);
-      setCategories(newCategories);
+      categoryService
+        .deleteCategory(delId)
+        .then(() => {
+          const newCategories = categories.filter((category) => category.id !== delId);
+          setCategories(newCategories);
+        })
+        .catch((error) => {
+          if (axios.isAxiosError(error) !== undefined) {
+            catcher('deleteCategory', error);
+          }
+        });
       handleClose();
     } catch (error) {
       toastMsg(ToastType.Warning, 'Você não pode deletar uma categoria relacionada a publicações');
@@ -37,9 +48,17 @@ const CategoryTable = (): React.ReactElement => {
 
   useEffect(() => {
     async function getCategories(): Promise<void> {
-      const dbCategories = await categoryService.getCategories();
-      const userCategories = dbCategories.filter((category) => category.owner.id === user.id);
-      setCategories(userCategories);
+      await categoryService
+        .getCategories()
+        .then((response) => {
+          const userCategories = response.filter((category) => category.owner.id === user.id);
+          setCategories(userCategories);
+        })
+        .catch((error) => {
+          if (axios.isAxiosError(error) !== undefined) {
+            catcher('getCategories', error);
+          }
+        });
     }
     getCategories();
   }, [user.id]);

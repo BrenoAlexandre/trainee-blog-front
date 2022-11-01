@@ -18,40 +18,15 @@ class UsersService {
     passwordConfirmation: string;
     role?: ERole;
   }): Promise<void> {
-    return HttpClient.api
-      .post(this.baseUrl, { ...user, role: user.role ?? 'user' })
-      .then((response) => response.data)
-      .catch((error) => {
-        if (error.code === 400) {
-          this.toastError(
-            'Houve um problema com o os seus dados. Confira se os campos estão preenchidos corretamente.'
-          );
-        } else if (error.code === 422) {
-          this.toastError('Esse email já está cadastrado na plataforma.');
-        } else this.toastError('Um erro inesperado aconteceu.');
-      });
+    return HttpClient.api.post(this.baseUrl, { ...user, role: user.role ?? 'user' }).then((response) => response.data);
   }
 
   static async findById(id: string): Promise<IUser> {
-    return HttpClient.api
-      .get(`${this.baseUrl}/${id}`)
-      .then((response) => response.data)
-      .catch((error) => {
-        if (error.code === 404) {
-          this.toastError('Usuário não encontrado.');
-        } else this.toastError('Um erro inesperado aconteceu.');
-      });
+    return HttpClient.api.get(`${this.baseUrl}/${id}`).then((response) => response.data);
   }
 
   static async update(name: string): Promise<void> {
-    return HttpClient.api
-      .put(`${this.baseUrl}`, { name })
-      .then((response) => response.data)
-      .catch((error) => {
-        if (error.code === 404) {
-          this.toastError('Usuário não encontrado.');
-        } else this.toastError('Um erro inesperado aconteceu.');
-      });
+    return HttpClient.api.put(`${this.baseUrl}`, { name }).then((response) => response.data);
   }
 
   static async login(email: string, password: string): Promise<{ authorization: string; data: IAuthUser }> {

@@ -1,8 +1,10 @@
+import axios from 'axios';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import Section from '../../components/Section';
 import Text from '../../components/Text';
+import { useCatcher } from '../../hooks/useCatcher';
 import IPost from '../../interfaces/IPost';
 import PostService from '../../services/posts.service';
 import formatDateUtils from '../../utils/formatDate';
@@ -10,6 +12,8 @@ import './style.scss';
 
 const Post: React.FunctionComponent = () => {
   const { id } = useParams();
+  const { catcher } = useCatcher();
+
   const [post, setPost] = useState<IPost>({
     id: id ?? '',
     title: '',
@@ -25,9 +29,15 @@ const Post: React.FunctionComponent = () => {
 
   const findPost = useCallback(() => {
     if (id) {
-      PostService.getPost(id).then((response) => {
-        setPost({ ...response, created_at: formatDate(response.created_at) });
-      });
+      PostService.getPost(id)
+        .then((response) => {
+          setPost({ ...response, created_at: formatDate(response.created_at) });
+        })
+        .catch((error) => {
+          if (axios.isAxiosError(error) !== undefined) {
+            catcher('getPost', error);
+          }
+        });
     }
   }, [id]);
 

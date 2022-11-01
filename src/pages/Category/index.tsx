@@ -1,23 +1,33 @@
+import axios from 'axios';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import PostTable from '../../components/PostTable';
 import Section from '../../components/Section';
 import Text from '../../components/Text';
+import { useCatcher } from '../../hooks/useCatcher';
 import IPost from '../../interfaces/IPost';
 import PostService from '../../services/posts.service';
 
 const Category: React.FunctionComponent = () => {
   const { id } = useParams();
+  const { catcher } = useCatcher();
+
   const [posts, setPosts] = useState<IPost[]>([]);
   const [category, setCategory] = useState<string>('');
 
   const getCategoryPosts = useCallback(() => {
     if (id) {
-      PostService.getCategoryPosts(id).then((res) => {
-        setPosts(res);
-        setCategory(res[0].category.title);
-      });
+      PostService.getCategoryPosts(id)
+        .then((res) => {
+          setPosts(res);
+          setCategory(res[0].category.title);
+        })
+        .catch((error) => {
+          if (axios.isAxiosError(error) !== undefined) {
+            catcher('getCategoryPosts', error);
+          }
+        });
     }
   }, [id]);
 

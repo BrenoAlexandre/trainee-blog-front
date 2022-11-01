@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, { useState } from 'react';
 import { Form, Formik } from 'formik';
 import * as yup from 'yup';
@@ -9,6 +10,7 @@ import Button from '../../../components/Button';
 import Text from '../../../components/Text';
 import toastMsg, { ToastType } from '../../../utils/toastMsg';
 import categoryService from '../../../services/category.service';
+import { useCatcher } from '../../../hooks/useCatcher';
 
 const createSchema = yup.object().shape({
   title: yup.string().defined('O título é obrigatório').max(100, 'O título deve ter menos de 100 caracteres'),
@@ -26,6 +28,8 @@ const defaultValue = {
 
 const Category: React.FunctionComponent = () => {
   const navigate = useNavigate();
+  const { catcher } = useCatcher();
+
   const [loader, setLoader] = useState<boolean>(false);
 
   const submitHandler = async (values: ICreate): Promise<void> => {
@@ -33,8 +37,16 @@ const Category: React.FunctionComponent = () => {
       const { title } = values;
       setLoader(true);
 
-      await categoryService.postCategory(title);
-      toastMsg(ToastType.Success, 'Categoria criada com sucesso!');
+      await categoryService
+        .postCategory(title)
+        .then(() => {
+          toastMsg(ToastType.Success, 'Categoria criada com sucesso!');
+        })
+        .catch((error) => {
+          if (axios.isAxiosError(error) !== undefined) {
+            catcher('postCategory', error);
+          }
+        });
 
       setLoader(false);
       navigate(-1);

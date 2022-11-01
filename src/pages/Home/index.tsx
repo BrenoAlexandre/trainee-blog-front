@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +11,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import IPost from '../../interfaces/IPost';
 import PostService from '../../services/posts.service';
 import UserPostsTable from './components/UserPosts';
+import { useCatcher } from '../../hooks/useCatcher';
 
 function toastWarn(msg: string): void {
   toastMsg(ToastType.Warning, msg);
@@ -17,6 +19,7 @@ function toastWarn(msg: string): void {
 
 const Home: React.FunctionComponent = () => {
   const navigate = useNavigate();
+  const { catcher } = useCatcher();
 
   const { user, logged, Logout } = useAuth();
 
@@ -28,21 +31,33 @@ const Home: React.FunctionComponent = () => {
   const targetPage = useRef<number | null>(0);
 
   const fetchPosts = useCallback((page): void => {
-    PostService.getPosts(page, 5).then((response) => {
-      setPosts((state) => [...state, ...response.data]);
-      if (response.next) {
-        targetPage.current = response.next;
-      } else {
-        targetPage.current = null;
-        setSeeMore(true);
-      }
-    });
+    PostService.getPosts(page, 5)
+      .then((response) => {
+        setPosts((state) => [...state, ...response.data]);
+        if (response.next) {
+          targetPage.current = response.next;
+        } else {
+          targetPage.current = null;
+          setSeeMore(true);
+        }
+      })
+      .catch((error) => {
+        if (axios.isAxiosError(error) !== undefined) {
+          catcher('getPosts', error);
+        }
+      });
   }, []);
 
   const fetchLoggedUserPosts = useCallback((userId: string) => {
-    PostService.getUserPosts(userId).then((response) => {
-      setMyPosts(response);
-    });
+    PostService.getUserPosts(userId)
+      .then((response) => {
+        setMyPosts(response);
+      })
+      .catch((error) => {
+        if (axios.isAxiosError(error) !== undefined) {
+          catcher('getUserPosts', error);
+        }
+      });
   }, []);
 
   function logoutHandler(): void {
