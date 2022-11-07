@@ -135,7 +135,7 @@ const Post: React.FunctionComponent = () => {
 
     getPostById();
     getCategories();
-  }, [checkToken, id, navigate]);
+  }, [catcher, checkToken, id, navigate]);
 
   return (
     <Section
@@ -150,6 +150,7 @@ const Post: React.FunctionComponent = () => {
           </Text>
         </Col>
       </Row>
+
       <Formik
         initialValues={initialValues}
         validationSchema={!id ? createSchema : updateSchema}
@@ -174,6 +175,7 @@ const Post: React.FunctionComponent = () => {
                       disabled={!!loader}
                     />
                   </Col>
+
                   <Col md={4} className="mb-3">
                     <Input
                       cy="test-inputCategory"
@@ -196,6 +198,7 @@ const Post: React.FunctionComponent = () => {
                       </>
                     </Input>
                   </Col>
+
                   <Col md={12} className="mb-3">
                     <Input
                       cy="test-inputDescription"

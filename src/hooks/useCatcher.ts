@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { EApiErrors } from '../enums/EApiErrors';
 import toastMsg, { ToastType } from '../utils/toastMsg';
 
@@ -20,7 +21,7 @@ const toastError = (msg: string): void => {
 };
 
 export const useCatcher = (): IReturn => {
-  const catcher = (apiCall: string, { response }: IError): string => {
+  const catcher = useCallback((apiCall: string, { response }: IError): string => {
     const { data } = response;
 
     if (data.message && Object.keys(EApiErrors).includes(`${apiCall}_${data.message}`)) {
@@ -28,7 +29,7 @@ export const useCatcher = (): IReturn => {
     } else toastError(EApiErrors.default);
 
     return data.message;
-  };
+  }, []);
 
   return { catcher };
 };

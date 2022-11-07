@@ -60,6 +60,7 @@ const Registration: React.FunctionComponent = () => {
 
     setLoader(false);
   }
+
   return (
     <Section className="home" title="Página inicial" description="Página inicial">
       <Row>

@@ -1,0 +1,23 @@
+.chip {
+  align-items: center;
+  margin-left: 10px;
+  border-radius: 5px;
+  border: 1px solid #000000;
+  background-color: #ffff87;
+  * {
+    margin: 3px;
+  }
+  a {
+    text-decoration: none;
+    color: #000000;
+    cursor: initial;
+  }
+
+  &__clickable {
+    @extend .chip;
+    :hover {
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  }
+}

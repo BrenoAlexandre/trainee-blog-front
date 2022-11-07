@@ -2,6 +2,7 @@ import axios from 'axios';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
+import { Chip } from '../../components/Chip';
 import Section from '../../components/Section';
 import Text from '../../components/Text';
 import { useCatcher } from '../../hooks/useCatcher';
@@ -39,7 +40,7 @@ const Post: React.FunctionComponent = () => {
           }
         });
     }
-  }, [id]);
+  }, [catcher, id]);
 
   useEffect(() => {
     let isCleaning = false;
@@ -64,9 +65,7 @@ const Post: React.FunctionComponent = () => {
             <Text as="h2" size="1.5rem">
               {post.owner.name}{' '}
             </Text>
-            <Text as="h2" size="1rem" className="category">
-              {post.category.title}
-            </Text>
+            <Chip title={post.category.title} key={post.category.id} />
           </div>
         </Col>
       </Row>

@@ -1,10 +1,10 @@
 import axios from 'axios';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import PageTitle from '../../components/PageTitle';
 import PostTable from '../../components/PostTable';
 import Section from '../../components/Section';
-import Text from '../../components/Text';
 import { useCatcher } from '../../hooks/useCatcher';
 import IPost from '../../interfaces/IPost';
 import PostService from '../../services/posts.service';
@@ -12,6 +12,7 @@ import PostService from '../../services/posts.service';
 const Category: React.FunctionComponent = () => {
   const { id } = useParams();
   const { catcher } = useCatcher();
+  const navigate = useNavigate();
 
   const [posts, setPosts] = useState<IPost[]>([]);
   const [category, setCategory] = useState<string>('');
@@ -29,7 +30,7 @@ const Category: React.FunctionComponent = () => {
           }
         });
     }
-  }, [id]);
+  }, [id, catcher]);
 
   useEffect(() => {
     let isCleaning = false;
@@ -45,13 +46,7 @@ const Category: React.FunctionComponent = () => {
 
   return (
     <Section className="home" title="Página inicial" description="Página inicial">
-      <Row>
-        <Col md={8}>
-          <Text as="h1" size="2rem" weight={700}>
-            {category}
-          </Text>
-        </Col>
-      </Row>
+      <PageTitle title={category} actionFn={() => navigate(-1)} actionText="Voltar" />
       <Row>
         <Col md={9}>
           <PostTable posts={posts} />

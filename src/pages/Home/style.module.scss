@@ -1,0 +1,123 @@
+.postsWrapper {
+  display: flex;
+  justify-content: space-evenly;
+  flex-wrap: wrap;
+
+  @media (max-width: 1199px) {
+  }
+}
+
+//309px os posts são esmagados
+//355px os botões quebram
+//575px encerar sessão cresce
+//767px minhas publicações descem
+//991px muita coisa muda
+
+.actionBar {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  margin: 0 0 15px 0;
+
+  @media (max-width: 575px) {
+    justify-content: center;
+    margin-top: 5px;
+  }
+
+  @media (max-width: 210px) {
+    justify-content: center;
+    flex-direction: column;
+    margin: 5px 0;
+  }
+}
+
+.post {
+  border: 1px solid black;
+  border-radius: 3%;
+  background-color: #a5c9ca;
+  margin-bottom: 15px;
+  width: 240px;
+  height: auto;
+  max-height: 180px;
+
+  a {
+    color: #000000;
+    text-decoration: none;
+  }
+
+  &__container {
+    display: flex;
+    flex-direction: column;
+    margin: 0 0 15px 5px;
+  }
+
+  &__header {
+    align-items: flex-start;
+    margin: 3px 0 15px 5px;
+
+    &__owner {
+      font-weight: bold;
+      margin-bottom: 0;
+    }
+    &__title {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: bold;
+      margin-bottom: 0;
+    }
+  }
+
+  &__body {
+    align-items: center;
+    margin: 0 0 15px 5px;
+
+    &__description {
+      word-wrap: break-word;
+      display: block;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      max-height: 2.4rem;
+      line-height: 1.2rem;
+      margin-bottom: 0;
+    }
+  }
+
+  &__footer {
+    align-items: flex-end;
+    margin: 0 0 5px 5px;
+  }
+}
+
+.button {
+  border: 0;
+  border-radius: 8px;
+  padding: 7px 12px 7px 12px;
+  color: #ffffff;
+  margin: 0 2.5px;
+  padding: 5px 12px;
+
+  button:hover {
+    background-color: #a5c9ca;
+  }
+
+  &__primary {
+    @extend .button;
+    background-color: #2bb0c4;
+  }
+
+  &__secondary {
+    @extend .button;
+    background-color: #395b64;
+  }
+
+  @media (max-width: 210px) {
+    margin: 5px 0;
+  }
+}
+
+.myPosts {
+  @media (max-width: 767px) {
+    display: none;
+  }
+}

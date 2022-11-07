@@ -1,0 +1,25 @@
+.buttonWrapper {
+  display: flex;
+
+  @media (max-width: 575px) {
+    justify-content: center;
+  }
+}
+
+.sessionButton {
+  width: 100%;
+  justify-content: center;
+  border: 0;
+  border-radius: 8px;
+  padding: 7px 12px 7px 12px;
+  color: #ffffff;
+  background-color: #2c3333;
+  margin: 0 2.5px;
+  padding: 5px 12px;
+
+  @media (max-width: 575px) {
+    width: 260px;
+    justify-content: center;
+    margin-top: 5px;
+  }
+}

@@ -61,7 +61,7 @@ const CategoryTable = (): React.ReactElement => {
         });
     }
     getCategories();
-  }, [user.id]);
+  }, [catcher, user.id]);
 
   return (
     <Card>
